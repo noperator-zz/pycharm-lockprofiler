@@ -62,8 +62,7 @@ public final class ProfileHighlightService {
     private final Map<Integer, TextAttributes> lineBackgroundColorMap = new HashMap<>();
     // Highlighters, ordered per file
     private final Map<VirtualFile, List<RangeHighlighter>> highlighters = new HashMap<>();
-
-    private TimeFractionCalculation timeFractionCalculation = TimeFractionCalculation.FUNCTION_TOTAL;
+    private final Map<VirtualFile, TimeFractionCalculation> fileTFC = new HashMap<>();
     private @Nullable Profile currentProfile;
 
     public ProfileHighlightService(Project project) {
@@ -85,6 +84,22 @@ public final class ProfileHighlightService {
             ta.setBackgroundColor(cm.getColor(colorFrac));
             lineBackgroundColorMap.put(i, ta);
         }
+    }
+
+    /**
+     * Returns boolean indicating whether highlighters are active for a file
+     * @param file file to check
+     */
+    public boolean containsHighlights(VirtualFile file) {
+        return highlighters.containsKey(file);
+    }
+
+    /**
+     * Returns boolean indicating whether highlighters are active for a file
+     * @param file file to check
+     */
+    public TimeFractionCalculation currentTimeFractionCalculation(VirtualFile file) {
+        return fileTFC.get(file);
     }
 
     /**
@@ -165,8 +180,7 @@ public final class ProfileHighlightService {
         fileHighlighters.removeAll(disposed);
     }
 
-    private void loadLineProfileJson(String fileName) {
-        // Dispose all existing highlighters because we will load new profile results
+    private void loadLineProfileJson(String fileName, TimeFractionCalculation timeFractionCalculation) {
         disposeAllHighlighters();
 
         Gson gson = new Gson();
@@ -180,24 +194,43 @@ public final class ProfileHighlightService {
         }
 
         ProfileSchema data = gson.fromJson(reader, ProfileSchema.class); // contains the whole reviews list
-        Profile profile = new Profile(data);
 
-        loadProfile(profile);
+        currentProfile = new Profile(data);
+
+        loadProfile(timeFractionCalculation);
     }
 
-    private void loadProfile(Profile p) {
-        currentProfile = p;
+    public void loadProfile(TimeFractionCalculation timeFractionCalculation) {
+        loadProfile(timeFractionCalculation, null);
+    }
 
-        for (FunctionProfile functionProfile : p.getProfiledFunctions()) {
-            loadFunctionProfile(functionProfile);
+    public void loadProfile(TimeFractionCalculation timeFractionCalculation, VirtualFile forFile) {
+        if (forFile == null) {
+            // Dispose all existing highlighters because we will load new profile results
+            disposeAllHighlighters();
+        } else {
+            // Dispose all existing highlighters only for the given VirtualFile because we will load
+            // new profile results for that file
+            disposeHighlighters(forFile);
+        }
+        if (currentProfile == null) {
+            logger.error("No profile was given to load");
+            return;
+        }
+        for (FunctionProfile functionProfile : currentProfile.getProfiledFunctions()) {
+            loadFunctionProfile(functionProfile, timeFractionCalculation, forFile);
         }
     }
 
-    private void loadFunctionProfile(FunctionProfile fProfile) {
+    private void loadFunctionProfile(FunctionProfile fProfile, TimeFractionCalculation timeFractionCalculation, @Nullable VirtualFile forFile) {
         VirtualFileManager vfm = VirtualFileManager.getInstance();
         VirtualFile file = vfm.findFileByNioPath(Paths.get(fProfile.getFile()));
         if (file == null) {
             logger.warn("Could not find file: " + fProfile.getFile());
+            return;
+        }
+        if (forFile != null && !file.equals(forFile)) {
+            // We only want to load profiles for forFile if forFile is not null
             return;
         }
         OpenFileDescriptor ofd = new OpenFileDescriptor(myProject, file);
@@ -208,7 +241,7 @@ public final class ProfileHighlightService {
         }
 
         if (currentProfile == null) {
-            logger.error("Could ont find a current profile, so could not load function profile");
+            logger.error("Could not find a current profile, so could not load function profile");
             return;
         }
 
@@ -230,6 +263,9 @@ public final class ProfileHighlightService {
                     timeDenominator);
             fileHighlighters.add(rh);
         }
+
+        // Set the currently used TimeFractionCalculation
+        fileTFC.put(file, timeFractionCalculation);
     }
 
     private RangeHighlighter loadLineProfile(Editor editor, LineProfile lineProfile, float timeDenominator) {
@@ -245,7 +281,7 @@ public final class ProfileHighlightService {
                         lineBackgroundColorMap.get(colorIndex));
     }
 
-    public void loadLineProfile(Sdk conversionSdk, VirtualFile profileFile) {
+    public void loadLineProfile(Sdk conversionSdk, VirtualFile profileFile, TimeFractionCalculation timeFractionCalculation) {
         // Get interpreter path from sdk
         String interpreterPath = conversionSdk.getHomePath();
         if (interpreterPath == null) {
@@ -324,7 +360,7 @@ public final class ProfileHighlightService {
 
         // TODO check protocol version error
 
-        loadLineProfileJson(tempProfileJson.toString());
+        loadLineProfileJson(tempProfileJson.toString(), timeFractionCalculation);
     }
 }
 
