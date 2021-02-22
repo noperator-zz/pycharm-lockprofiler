@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.jusx.pycharm.colored_lineprofiler.profile.Profile;
 import com.jusx.pycharm.colored_lineprofiler.service.ProfileHighlightService;
 import com.jusx.pycharm.colored_lineprofiler.service.TimeFractionCalculation;
 import com.jusx.pycharm.colored_lineprofiler.settings.SettingsState;
@@ -44,7 +45,10 @@ public class VisualiseLineProfilerAction extends AnAction {
 
         ProfileHighlightService profileHighlightService = currentProject.getService(ProfileHighlightService.class);
 
-        profileHighlightService.loadLineProfile(lprofConversionSdk, profileFile, withTimeFractionCalculation());
+        Profile profile = Profile.fromLprof(currentProject, lprofConversionSdk, profileFile);
+
+        profileHighlightService.setProfile(profile);
+        profileHighlightService.visualizeProfile(withTimeFractionCalculation());
     }
 
     protected TimeFractionCalculation withTimeFractionCalculation() {

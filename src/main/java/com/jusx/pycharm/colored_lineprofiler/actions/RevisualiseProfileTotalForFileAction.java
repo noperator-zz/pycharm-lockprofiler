@@ -49,7 +49,7 @@ public class RevisualiseProfileTotalForFileAction extends AnAction {
             return;
         }
 
-        profileHighlightService.loadProfile(withTimeFractionCalculation(), srcFile);
+        profileHighlightService.visualizeProfile(withTimeFractionCalculation(), srcFile);
     }
 
     protected TimeFractionCalculation withTimeFractionCalculation() {

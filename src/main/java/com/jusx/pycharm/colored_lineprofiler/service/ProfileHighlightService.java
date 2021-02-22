@@ -1,10 +1,5 @@
 package com.jusx.pycharm.colored_lineprofiler.service;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.process.ProcessHandler;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Caret;
@@ -17,27 +12,15 @@ import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.progress.impl.ProgressManagerImpl;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.jetbrains.python.run.PythonProcessRunner;
 import com.jusx.pycharm.colored_lineprofiler.profile.FunctionProfile;
 import com.jusx.pycharm.colored_lineprofiler.profile.LineProfile;
 import com.jusx.pycharm.colored_lineprofiler.profile.Profile;
-import com.jusx.pycharm.colored_lineprofiler.profile.ProfileSchema;
-import com.jusx.pycharm.colored_lineprofiler.utils.LineProfilerSdkUtils;
 import jViridis.ColorMap;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -180,31 +163,29 @@ public final class ProfileHighlightService {
         fileHighlighters.removeAll(disposed);
     }
 
-    private void loadLineProfileJson(String fileName, TimeFractionCalculation timeFractionCalculation) {
+    /**
+     * Registers a new profile as profile for this highlight service
+     *
+     * After registering the profile, one can invoke `visualizeProfile`
+     * to create the visualizations
+     *
+     * @param profile profile to register
+     */
+    public void setProfile(Profile profile) {
         disposeAllHighlighters();
-
-        Gson gson = new Gson();
-        JsonReader reader;
-
-        try {
-            reader = new JsonReader(new FileReader(fileName));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        ProfileSchema data = gson.fromJson(reader, ProfileSchema.class); // contains the whole reviews list
-
-        currentProfile = new Profile(data);
-
-        loadProfile(timeFractionCalculation);
+        currentProfile = profile;
     }
 
-    public void loadProfile(TimeFractionCalculation timeFractionCalculation) {
-        loadProfile(timeFractionCalculation, null);
+    /**
+     * Visualizes the registered profile in files of this project
+     *
+     * @param timeFractionCalculation method to calculate the time fraction
+     */
+    public void visualizeProfile(TimeFractionCalculation timeFractionCalculation) {
+        visualizeProfile(timeFractionCalculation, null);
     }
 
-    public void loadProfile(TimeFractionCalculation timeFractionCalculation, VirtualFile forFile) {
+    public void visualizeProfile(TimeFractionCalculation timeFractionCalculation, VirtualFile forFile) {
         if (forFile == null) {
             // Dispose all existing highlighters because we will load new profile results
             disposeAllHighlighters();
@@ -279,88 +260,6 @@ public final class ProfileHighlightService {
                         lineNo,
                         HighlighterLayer.CARET_ROW - 1,
                         lineBackgroundColorMap.get(colorIndex));
-    }
-
-    public void loadLineProfile(Sdk conversionSdk, VirtualFile profileFile, TimeFractionCalculation timeFractionCalculation) {
-        // Get interpreter path from sdk
-        String interpreterPath = conversionSdk.getHomePath();
-        if (interpreterPath == null) {
-            // TODO send notification?
-            logger.error("Python env " + conversionSdk + " has no interpreter set up");
-            return;
-        }
-
-        // Check whether lineprofiler is installed
-        boolean lineProfilerInstalled;
-        try {
-            lineProfilerInstalled = LineProfilerSdkUtils.hasLineProfilerInstalled(conversionSdk);
-        } catch (ExecutionException e) {
-            logger.error("Could not check whether line-profiler was installed to sdk " + conversionSdk, e);
-            return;
-        }
-        if (!lineProfilerInstalled) {
-            lineProfilerInstalled = LineProfilerSdkUtils.requestAndDoInstallation(
-                    myProject,
-                    conversionSdk,
-                    "Package line-profiler is not installed to python environment."
-            );
-            if (!lineProfilerInstalled) {
-                logger.warn("Package installation line-profiler to sdk " + conversionSdk + " did not succeed");
-                return;
-            }
-        }
-
-        // Create temporary file to which readable profile json will be written.
-        Path tempProfileJson;
-        try {
-            tempProfileJson = Files.createTempFile(profileFile.getName() + "-converted", ".json");
-        } catch (IOException e) {
-            logger.error("Could not create temporary file for converted .lprof file", e);
-            return;
-        }
-
-        InputStream convertProfileScriptStream = getClass().getClassLoader().getResourceAsStream("load_kernprof_file.py");
-        assert convertProfileScriptStream != null;
-        String convertProfileScript;
-        try {
-            convertProfileScript = new String(convertProfileScriptStream.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            logger.error("Could not read profile conversion python-script", e);
-            return;
-        }
-
-        GeneralCommandLine gcl = new GeneralCommandLine()
-                .withWorkDirectory(tempProfileJson.getParent().toString())
-                .withExePath(interpreterPath)
-                .withParameters(
-                        "-c",
-                        convertProfileScript,
-                        profileFile.getPath(),
-                        tempProfileJson.toString());
-
-        ProcessHandler processHandler;
-        try {
-            processHandler = PythonProcessRunner.createProcess(gcl);
-        } catch (ExecutionException e) {
-            logger.error("Converting " + profileFile + " failed: could not start process", e);
-            return;
-        }
-
-        ProgressManagerImpl.getInstance().runProcessWithProgressSynchronously(
-                () -> {
-                    // TODO what if there is no line_profiler installed?
-                    // TODO what if wrong protocol version
-                    processHandler.startNotify();
-                    processHandler.waitFor();
-                    logger.warn("Exit code of profile conversion: " + processHandler.getExitCode());
-                },
-                "Converting line profile to json", false, myProject
-        );
-
-
-        // TODO check protocol version error
-
-        loadLineProfileJson(tempProfileJson.toString(), timeFractionCalculation);
     }
 }
 
