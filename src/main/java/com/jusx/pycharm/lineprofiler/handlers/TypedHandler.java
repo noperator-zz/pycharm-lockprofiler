@@ -1,11 +1,11 @@
-package com.jusx.pycharm.colored_lineprofiler.handlers;
+package com.jusx.pycharm.lineprofiler.handlers;
 
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.jusx.pycharm.colored_lineprofiler.service.ProfileHighlightService;
+import com.jusx.pycharm.lineprofiler.service.ProfileHighlightService;
 import org.jetbrains.annotations.NotNull;
 
 public class TypedHandler extends TypedHandlerDelegate {

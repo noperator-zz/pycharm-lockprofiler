@@ -1,4 +1,4 @@
-package com.jusx.pycharm.colored_lineprofiler.settings;
+package com.jusx.pycharm.lineprofiler.settings;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
@@ -24,7 +24,7 @@ public class SettingsConfigurable implements Configurable {
     @Nls(capitalization = Nls.Capitalization.Title)
     @Override
     public String getDisplayName() {
-        return "Colored Lineprofiler";
+        return "Line Profiler";
     }
 
     @Override

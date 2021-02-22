@@ -1,4 +1,4 @@
-package com.jusx.pycharm.colored_lineprofiler.utils;
+package com.jusx.pycharm.lineprofiler.utils;
 
 
 import com.intellij.openapi.projectRoots.Sdk;

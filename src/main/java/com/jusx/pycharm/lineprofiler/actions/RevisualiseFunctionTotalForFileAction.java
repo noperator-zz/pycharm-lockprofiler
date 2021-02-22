@@ -1,6 +1,6 @@
-package com.jusx.pycharm.colored_lineprofiler.actions;
+package com.jusx.pycharm.lineprofiler.actions;
 
-import com.jusx.pycharm.colored_lineprofiler.service.TimeFractionCalculation;
+import com.jusx.pycharm.lineprofiler.service.TimeFractionCalculation;
 
 
 public class RevisualiseFunctionTotalForFileAction extends RevisualiseProfileTotalForFileAction {

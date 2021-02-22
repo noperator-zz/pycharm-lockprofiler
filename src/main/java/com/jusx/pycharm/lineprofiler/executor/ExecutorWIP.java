@@ -1,4 +1,4 @@
-package com.jusx.pycharm.colored_lineprofiler.executor;
+package com.jusx.pycharm.lineprofiler.executor;
 
 public class ExecutorWIP {
 //    /**
@@ -76,7 +76,7 @@ public class ExecutorWIP {
 //        String interpreterPath = conversionSdk.getHomePath();
 //        if (interpreterPath == null) {
 //            // interpeter path is not set for python env
-//            NotificationGroupManager.getInstance().getNotificationGroup("Colored Lineprofiler Notifications")
+//            NotificationGroupManager.getInstance().getNotificationGroup("Line Profiler Notifications")
 //                    .createNotification(
 //                            "Python environment " + conversionSdk + " has no interpreter set up.",
 //                            NotificationType.ERROR)
@@ -132,15 +132,15 @@ public class ExecutorWIP {
 //            return true;
 //        } else if (convertProfileFileExitCode == 2) {
 //            // Pickle protocol error
-//            NotificationGroupManager.getInstance().getNotificationGroup("Colored Lineprofiler Notifications")
+//            NotificationGroupManager.getInstance().getNotificationGroup("Notifications")
 //                    .createNotification(
 //                            "Could not read " + profileFile.getName() + " because it was created with a conflicting " +
 //                                    "version of pickle. Consider changing the Python Environment for " +
-//                                    "loading .lprof files in settings (Tools -> Colored Lineprofiler)",
+//                                    "loading .lprof files in settings (Tools -> Line Profiler)",
 //                            NotificationType.ERROR)
 //                    .notify(project);
 //        } else {
-//            NotificationGroupManager.getInstance().getNotificationGroup("Colored Lineprofiler Notifications")
+//            NotificationGroupManager.getInstance().getNotificationGroup("Line Profiler Notifications")
 //                    .createNotification(
 //                            "Could not read " + profileFile.getName() + " because of an unknown error",
 //                            NotificationType.ERROR)

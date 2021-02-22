@@ -1,4 +1,4 @@
-package com.jusx.pycharm.colored_lineprofiler.actions;
+package com.jusx.pycharm.lineprofiler.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;

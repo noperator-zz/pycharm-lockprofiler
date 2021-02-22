@@ -1,9 +1,9 @@
-package com.jusx.pycharm.colored_lineprofiler.handlers;
+package com.jusx.pycharm.lineprofiler.handlers;
 
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiFile;
-import com.jusx.pycharm.colored_lineprofiler.service.ProfileHighlightService;
+import com.jusx.pycharm.lineprofiler.service.ProfileHighlightService;
 import org.jetbrains.annotations.NotNull;
 
 

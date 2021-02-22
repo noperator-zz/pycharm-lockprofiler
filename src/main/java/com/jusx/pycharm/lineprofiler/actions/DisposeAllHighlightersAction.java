@@ -1,11 +1,11 @@
-package com.jusx.pycharm.colored_lineprofiler.actions;
+package com.jusx.pycharm.lineprofiler.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.jusx.pycharm.colored_lineprofiler.service.ProfileHighlightService;
+import com.jusx.pycharm.lineprofiler.service.ProfileHighlightService;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE;

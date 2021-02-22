@@ -1,4 +1,4 @@
-package com.jusx.pycharm.colored_lineprofiler.service;
+package com.jusx.pycharm.lineprofiler.service;
 
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
@@ -15,9 +15,9 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.jusx.pycharm.colored_lineprofiler.profile.FunctionProfile;
-import com.jusx.pycharm.colored_lineprofiler.profile.LineProfile;
-import com.jusx.pycharm.colored_lineprofiler.profile.Profile;
+import com.jusx.pycharm.lineprofiler.profile.FunctionProfile;
+import com.jusx.pycharm.lineprofiler.profile.LineProfile;
+import com.jusx.pycharm.lineprofiler.profile.Profile;
 import jViridis.ColorMap;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,9 +1,9 @@
-package com.jusx.pycharm.colored_lineprofiler.settings;
+package com.jusx.pycharm.lineprofiler.settings;
 
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBRadioButton;
 import com.intellij.util.ui.FormBuilder;
-import com.jusx.pycharm.colored_lineprofiler.service.TimeFractionCalculation;
+import com.jusx.pycharm.lineprofiler.service.TimeFractionCalculation;
 
 import javax.swing.*;
 

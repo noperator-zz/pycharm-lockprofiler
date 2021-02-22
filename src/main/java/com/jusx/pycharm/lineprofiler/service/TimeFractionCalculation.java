@@ -1,4 +1,4 @@
-package com.jusx.pycharm.colored_lineprofiler.service;
+package com.jusx.pycharm.lineprofiler.service;
 
 public enum TimeFractionCalculation {
     PROFILE_TOTAL,

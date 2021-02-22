@@ -1,11 +1,11 @@
-package com.jusx.pycharm.colored_lineprofiler.settings;
+package com.jusx.pycharm.lineprofiler.settings;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.jusx.pycharm.colored_lineprofiler.service.TimeFractionCalculation;
+import com.jusx.pycharm.lineprofiler.service.TimeFractionCalculation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
  * https://plugins.jetbrains.com/docs/intellij/settings-tutorial.html#the-appsettingsstate-class
  */
 @State(
-        name = "com.jusx.pycharm.colored_lineprofiler.settings.SettingsState",
-        storages = {@Storage("ColoredLineprofilerPlugin.xml")}
+        name = "com.jusx.pycharm.lineprofiler.settings.SettingsState",
+        storages = {@Storage("LineprofilerPlugin.xml")}
 )
 public class SettingsState implements PersistentStateComponent<SettingsState> {
 

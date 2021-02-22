@@ -1,7 +1,7 @@
-package com.jusx.pycharm.colored_lineprofiler.actions;
+package com.jusx.pycharm.lineprofiler.actions;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.jusx.pycharm.colored_lineprofiler.service.TimeFractionCalculation;
+import com.jusx.pycharm.lineprofiler.service.TimeFractionCalculation;
 
 public class VisualiseLineProfilerFunctionTotalAction extends VisualiseLineProfilerAction {
     private static final Logger logger = Logger.getInstance(VisualiseLineProfilerFunctionTotalAction.class.getName());

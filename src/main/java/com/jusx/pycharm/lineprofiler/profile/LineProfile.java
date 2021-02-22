@@ -1,4 +1,4 @@
-package com.jusx.pycharm.colored_lineprofiler.profile;
+package com.jusx.pycharm.lineprofiler.profile;
 
 public class LineProfile {
     private int lineNo;
