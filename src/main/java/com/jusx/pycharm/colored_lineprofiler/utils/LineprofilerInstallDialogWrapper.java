@@ -31,7 +31,7 @@ public class LineprofilerInstallDialogWrapper extends DialogWrapper  {
         label.setPreferredSize(new Dimension(100, 30));
         dialogPanel.add(label, BorderLayout.NORTH);
 
-        JLabel label2 = new JLabel("Install line-profiler to " + sdk.getName() + "?");
+        JLabel label2 = new JLabel("Do you want to install line-profiler-pycharm to " + sdk.getName() + "?");
         label.setPreferredSize(new Dimension(100, 30));
         dialogPanel.add(label2, BorderLayout.SOUTH);
 

@@ -25,7 +25,7 @@ public class VisualiseLineProfilerAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         VirtualFile profileFile = event.getData(VIRTUAL_FILE);
-        if (profileFile == null || profileFile.getExtension() == null || !profileFile.getExtension().equals("lprof")) {
+        if (profileFile == null || profileFile.getExtension() == null || !profileFile.getExtension().equals("pclprof")) {
             logger.error("Can not load profile file (" + profileFile + ")");
             return;
         }
@@ -33,19 +33,9 @@ public class VisualiseLineProfilerAction extends AnAction {
         Project currentProject = event.getProject();
         assert currentProject != null;
 
-        SettingsState settings = SettingsState.getInstance();
-        Sdk lprofConversionSdk = settings.getSdk(currentProject);
-
-        if (lprofConversionSdk == null) {
-            // TODO send notification?
-            logger.error("Can not convert .lprof file to a readable format: no project interpreter is set for project (" + currentProject.getName() + ")");
-            return;
-        }
-
-
         ProfileHighlightService profileHighlightService = currentProject.getService(ProfileHighlightService.class);
 
-        Profile profile = Profile.fromLprof(currentProject, lprofConversionSdk, profileFile);
+        Profile profile = Profile.fromPclprof(profileFile);
 
         profileHighlightService.setProfile(profile);
         profileHighlightService.visualizeProfile(withTimeFractionCalculation());

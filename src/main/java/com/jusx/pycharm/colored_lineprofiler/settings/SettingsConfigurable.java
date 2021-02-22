@@ -2,14 +2,10 @@ package com.jusx.pycharm.colored_lineprofiler.settings;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.ProjectJdkTable;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.jetbrains.python.sdk.PythonSdkType;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.List;
 
 /**
  * Provides controller functionality for application settings.
@@ -47,7 +43,7 @@ public class SettingsConfigurable implements Configurable {
     public boolean isModified() {
         SettingsState settings = SettingsState.getInstance();
 
-        boolean modified = mySettingsComponent.getSelectedLprofConversionSdk() != settings.getSdk(project);
+        boolean modified = mySettingsComponent.getDefaultTimeFractionCalculation() != settings.defaultTimeFractionCalculation;
 
         return modified;
     }
@@ -55,16 +51,14 @@ public class SettingsConfigurable implements Configurable {
     @Override
     public void apply() {
         SettingsState settings = SettingsState.getInstance();
-        settings.setSdk(mySettingsComponent.getSelectedLprofConversionSdk());
+        settings.defaultTimeFractionCalculation = mySettingsComponent.getDefaultTimeFractionCalculation();
     }
 
     @Override
     public void reset() {
         SettingsState settings = SettingsState.getInstance();
 
-        List<Sdk> sdks = ProjectJdkTable.getInstance().getSdksOfType(PythonSdkType.getInstance());
-        mySettingsComponent.setSdkList(sdks);
-        mySettingsComponent.setSelectedLprofConversionSdk(settings.getSdk(project));
+        mySettingsComponent.setDefaultTimeFractionCalculation(settings.defaultTimeFractionCalculation);
     }
 
     @Override

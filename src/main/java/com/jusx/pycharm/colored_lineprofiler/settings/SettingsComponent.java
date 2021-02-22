@@ -1,15 +1,11 @@
 package com.jusx.pycharm.colored_lineprofiler.settings;
 
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.components.JBRadioButton;
 import com.intellij.util.ui.FormBuilder;
-import org.jdesktop.swingx.combobox.ListComboBoxModel;
-import org.jetbrains.annotations.Nullable;
+import com.jusx.pycharm.colored_lineprofiler.service.TimeFractionCalculation;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Supports creating and managing a {@link JPanel} for the Settings Dialog.
@@ -20,14 +16,18 @@ import java.util.List;
 public class SettingsComponent {
     private final JPanel myMainPanel;
 
-    private final List<Sdk> sdkList = new ArrayList<>();
-    private final ListComboBoxModel<Sdk> comboBoxModel = new ListComboBoxModel<>(sdkList);
-    private final ComboBox<Sdk> defaultLprofConversionSdk = new ComboBox<Sdk>(comboBoxModel);
+    private final ButtonGroup defaultTimeFractionCalculation = new ButtonGroup();
+    private final JBRadioButton functionTotalButton = new JBRadioButton("Total function times", true);
+    private final JBRadioButton profileTotalButton = new JBRadioButton("Total profile time");
 
     public SettingsComponent() {
+        defaultTimeFractionCalculation.add(profileTotalButton);
+        defaultTimeFractionCalculation.add(functionTotalButton);
+
         myMainPanel = FormBuilder.createFormBuilder()
-                .addLabeledComponent(new JBLabel("Default python env for converting .lprof files: "),
-                        defaultLprofConversionSdk, 1, false)
+                .addComponent(new JBLabel("As a default, visualizations should express percentages of"), 1)
+                .addComponent(functionTotalButton, 1)
+                .addComponent(profileTotalButton, 1)
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
     }
@@ -37,20 +37,22 @@ public class SettingsComponent {
     }
 
     public JComponent getPreferredFocusedComponent() {
-        return defaultLprofConversionSdk;
+        return profileTotalButton;
     }
 
-    public void setSdkList(List<Sdk> sdkList) {
-        this.sdkList.clear();
-        this.sdkList.addAll(sdkList);
+    public void setDefaultTimeFractionCalculation(TimeFractionCalculation timeFractionCalculation) {
+        if (timeFractionCalculation == TimeFractionCalculation.PROFILE_TOTAL) {
+            defaultTimeFractionCalculation.setSelected(profileTotalButton.getModel(), true);
+        } else {
+            defaultTimeFractionCalculation.setSelected(functionTotalButton.getModel(), true);
+        }
     }
 
-    public void setSelectedLprofConversionSdk(Sdk sdk) {
-        this.comboBoxModel.setSelectedItem(sdk);
-    }
-
-    @Nullable
-    public Sdk getSelectedLprofConversionSdk() {
-        return this.comboBoxModel.getSelectedItem();
+    public TimeFractionCalculation getDefaultTimeFractionCalculation() {
+        if (defaultTimeFractionCalculation.getSelection() == profileTotalButton.getModel()) {
+            return TimeFractionCalculation.PROFILE_TOTAL;
+        } else {
+            return TimeFractionCalculation.FUNCTION_TOTAL;
+        }
     }
 }

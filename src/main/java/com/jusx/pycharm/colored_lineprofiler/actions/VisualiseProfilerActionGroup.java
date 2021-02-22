@@ -13,7 +13,7 @@ public class VisualiseProfilerActionGroup extends DefaultActionGroup {
         VirtualFile file = e.getData(VIRTUAL_FILE);
         if (file == null || file.getExtension() == null) {
             e.getPresentation().setVisible(false);
-        } else e.getPresentation().setVisible(file.getExtension().equals("lprof"));
+        } else e.getPresentation().setVisible(file.getExtension().equals("pclprof"));
         super.update(e);
     }
 }

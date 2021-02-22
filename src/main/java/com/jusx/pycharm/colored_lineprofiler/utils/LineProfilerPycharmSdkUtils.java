@@ -11,20 +11,20 @@ import com.jetbrains.python.packaging.PyPackageManagers;
 
 import java.util.List;
 
-public class LineProfilerSdkUtils {
-    private static final Logger logger = Logger.getInstance(LineProfilerSdkUtils.class.getName());
+public class LineProfilerPycharmSdkUtils {
+    private static final Logger logger = Logger.getInstance(LineProfilerPycharmSdkUtils.class.getName());
 
     /**
-     * Checks whether a python sdk has line-profiler installed
+     * Checks whether a python sdk has line-profiler-pycharm installed
      * @param sdk sdk to check
-     * @return boolean indicating whether line-profiler is installed
+     * @return boolean indicating whether line-profiler-pycharm is installed
      */
-    public static boolean hasLineProfilerInstalled(Sdk sdk) throws ExecutionException {
+    public static boolean hasLineProfilerPycharmInstalled(Sdk sdk) throws ExecutionException {
         PyPackageManager ppm = PyPackageManagers.getInstance().forSdk(sdk);
         List<PyPackage> installedPackages = ppm.refreshAndGetPackages(false);
 
         for (PyPackage p : installedPackages) {
-            if (p.getName().equals("line-profiler")) {
+            if (p.getName().equals("line-profiler-pycharm")) {
                 return true;
             }
         }
@@ -32,16 +32,15 @@ public class LineProfilerSdkUtils {
     }
 
     /**
-     * Requests and performs installation of line-profiler in a python environment
-     * @param sdk sdk in which to install line-profiler
+     * Requests and performs installation of our helper package line-profiler-pycharm in a python environment
+     * @param sdk sdk in which to install line-profiler-pycharm
      * @param explanation explanation that is shown when requesting the installation
-     * @return boolean indicating whether line-profiler was installed
-     * @throws ExecutionException when installation fails
+     * @return boolean indicating whether line-profiler-pycharm was installed
      */
     public static boolean requestAndDoInstallation(Project project, Sdk sdk, String explanation) {
         LineprofilerInstallDialogWrapper dw = new LineprofilerInstallDialogWrapper(sdk, explanation);
         if (dw.showAndGet()) {
-            // User gave permission to install line-profiler
+            // User gave permission to install line-profiler-pycharm
             PyPackageManager ppm = PyPackageManagers.getInstance().forSdk(sdk);
             var ref = new Object() {
                 boolean success = true;
@@ -50,13 +49,13 @@ public class LineProfilerSdkUtils {
             ProgressManagerImpl.getInstance().runProcessWithProgressSynchronously(
                 () -> {
                     try {
-                        ppm.install("line-profiler");
+                        ppm.install("line-profiler-pycharm");
                     } catch (ExecutionException e) {
                         ref.success = false;
-                        logger.error("Error when installing line-profiler to environment " + sdk, e);
+                        logger.error("Error when installing line-profiler-pycharm to environment " + sdk, e);
                     }
                 },
-                "Installing line-profiler in " + sdk.getName(), false, project
+                "Installing line-profiler-pycharm in " + sdk.getName(), false, project
             );
             return ref.success;
         } else {
