@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +20,11 @@ public class Profile {
     private final float unit;
     private float totalTime;
 
-    private Profile(ProfileSchema schema) {
+    private Profile(ProfileSchema schema, @Nullable String rootDirectory) {
         unit = schema.unit;
 
         for (ProfileSchema.Function fSchema : schema.profiledFunctions) {
-            FunctionProfile fn = new FunctionProfile(fSchema);
+            FunctionProfile fn = new FunctionProfile(fSchema, rootDirectory);
             functionProfiles.add(fn);
             totalTime += fn.totalTime;
         }
@@ -51,7 +52,7 @@ public class Profile {
      * @return Profile object from .pclprof file
      */
     @Nullable
-    public static Profile fromPclprof(String profileFile) {
+    public static Profile fromPclprof(String profileFile, @Nullable String rootDirectory) {
         Gson gson = new Gson();
         JsonReader reader;
 
@@ -64,11 +65,16 @@ public class Profile {
 
         ProfileSchema data = gson.fromJson(reader, ProfileSchema.class); // contains the whole reviews list
 
-        return new Profile(data);
+        return new Profile(data, rootDirectory);
+    }
+
+    @Nullable
+    public static Profile fromPclprof(Path profileFile) {
+        return fromPclprof(profileFile.toString(), profileFile.getParent().toString());
     }
 
     @Nullable
     public static Profile fromPclprof(VirtualFile profileFile) {
-        return fromPclprof(profileFile.getPath());
+        return fromPclprof(profileFile.getPath(), profileFile.getParent().getPath());
     }
 }

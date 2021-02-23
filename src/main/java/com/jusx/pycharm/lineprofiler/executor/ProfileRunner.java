@@ -129,7 +129,7 @@ public class ProfileRunner extends PythonRunner {
 
         ProfileHighlightService profileHighlightService = project.getService(ProfileHighlightService.class);
 
-        Profile profile = Profile.fromPclprof(pclprofPath.toString());
+        Profile profile = Profile.fromPclprof(pclprofPath);
         SettingsState settings = SettingsState.getInstance();
 
         ApplicationManager.getApplication().invokeLater(() -> {
