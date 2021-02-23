@@ -105,8 +105,8 @@ public class LineProfilerPycharmSdkUtils {
             if (!installed) {
                 NotificationGroupManager.getInstance().getNotificationGroup("Line Profiler Notifications")
                     .createNotification(
-                            "Package installation 'line-profiler-pycharm' to " + sdk + " did not succeed",
-                            NotificationType.ERROR)
+                            "Package 'line-profiler-pycharm' was not installed to " + sdk,
+                            NotificationType.WARNING)
                     .notify(project);
                 return false;
             }
