@@ -1,6 +1,8 @@
 package com.jusx.pycharm.lineprofiler.utils;
 
 import com.intellij.execution.ExecutionException;
+import com.intellij.notification.NotificationGroupManager;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.impl.ProgressManagerImpl;
 import com.intellij.openapi.project.Project;
@@ -9,6 +11,7 @@ import com.jetbrains.python.packaging.PyPackage;
 import com.jetbrains.python.packaging.PyPackageManager;
 import com.jetbrains.python.packaging.PyPackageManagers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LineProfilerPycharmSdkUtils {
@@ -19,11 +22,24 @@ public class LineProfilerPycharmSdkUtils {
      * @param sdk sdk to check
      * @return boolean indicating whether line-profiler-pycharm is installed
      */
-    public static boolean hasLineProfilerPycharmInstalled(Sdk sdk) throws ExecutionException {
+    public static boolean hasLineProfilerPycharmInstalled(Project project, Sdk sdk) {
         PyPackageManager ppm = PyPackageManagers.getInstance().forSdk(sdk);
-        List<PyPackage> installedPackages = ppm.refreshAndGetPackages(false);
+        var ref = new Object() {
+            List<PyPackage> installedPackages = new ArrayList<>();
+        };
+        ProgressManagerImpl.getInstance().runProcessWithProgressSynchronously(
+                () -> {
+                    try {
+                        ref.installedPackages = ppm.refreshAndGetPackages(false);
+                    } catch (ExecutionException e) {
+                        logger.error("Could not check whether line-profiler-pycharm was installed to interpreter " + sdk, e);
+                        e.printStackTrace();
+                    }
+                },
+                "Refreshing packages", false, project
+        );
 
-        for (PyPackage p : installedPackages) {
+        for (PyPackage p : ref.installedPackages) {
             if (p.getName().equals("line-profiler-pycharm")) {
                 return true;
             }
@@ -62,5 +78,39 @@ public class LineProfilerPycharmSdkUtils {
             // User did not give permission to install line profiler
             return false;
         }
+    }
+
+    /**
+     * Ensures the installation of `line-profiler-pycharm` in a python interpreter
+     *
+     * First it is checked whether the package is already installed
+     * If not, we request the user to install the package
+     *
+     * @param project project
+     * @param sdk interpeter to check line-profiler-pycharm installation on
+     * @return boolean indicating whether package is installed
+     */
+    public static boolean ensureLineProfilerPycharmPackageInstalled(Project project, Sdk sdk) {
+        // Check whether lineprofiler is installed
+        boolean installed;
+
+        installed = hasLineProfilerPycharmInstalled(project, sdk);
+
+        if (!installed) {
+            installed = requestAndDoInstallation(
+                    project,
+                    sdk,
+                    "Package 'line-profiler-pycharm' is not installed in python interpreter."
+            );
+            if (!installed) {
+                NotificationGroupManager.getInstance().getNotificationGroup("Line Profiler Notifications")
+                    .createNotification(
+                            "Package installation 'line-profiler-pycharm' to " + sdk + " did not succeed",
+                            NotificationType.ERROR)
+                    .notify(project);
+                return false;
+            }
+        }
+        return true;
     }
 }

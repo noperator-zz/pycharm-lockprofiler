@@ -8,6 +8,7 @@ import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.io.FileUtil;
 import com.jetbrains.python.run.AbstractPythonRunConfiguration;
 import com.jetbrains.python.run.PythonRunConfiguration;
@@ -15,6 +16,7 @@ import com.jetbrains.python.run.PythonRunner;
 import com.jusx.pycharm.lineprofiler.profile.Profile;
 import com.jusx.pycharm.lineprofiler.service.ProfileHighlightService;
 import com.jusx.pycharm.lineprofiler.settings.SettingsState;
+import com.jusx.pycharm.lineprofiler.utils.LineProfilerPycharmSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.concurrency.Promise;
@@ -54,6 +56,15 @@ public class ProfileRunner extends PythonRunner {
         ApplicationManager.getApplication().invokeLater(profileHighlightService::disposeAllHighlighters);
 
         PythonRunConfiguration runConfiguration = (PythonRunConfiguration) env.getRunProfile();
+
+        // Ensure line-profiler-pycharm package installation to python env
+        Sdk sdk = runConfiguration.getSdk();
+        if (sdk != null) {
+            if (!LineProfilerPycharmSdkUtils.ensureLineProfilerPycharmPackageInstalled(env.getProject(), sdk)) {
+                throw new RuntimeException("Could not do Profile Lines execution because the python package " +
+                        "'line-profile-pycharm' is not installed to " + sdk);
+            }
+        }
 
         // Define the location where the .pclprof file must be saved by our `line-profiler-pycharm` python package
         Path pclprofPath;
