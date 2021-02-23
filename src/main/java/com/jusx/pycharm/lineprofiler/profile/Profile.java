@@ -41,7 +41,6 @@ public class Profile {
         return totalTime;
     }
 
-
     /**
      * Loads a .pclprof file into a Profile object
      *
@@ -52,12 +51,12 @@ public class Profile {
      * @return Profile object from .pclprof file
      */
     @Nullable
-    public static Profile fromPclprof(VirtualFile profileFile) {
+    public static Profile fromPclprof(String profileFile) {
         Gson gson = new Gson();
         JsonReader reader;
 
         try {
-            reader = new JsonReader(new FileReader(profileFile.getPath()));
+            reader = new JsonReader(new FileReader(profileFile));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -66,5 +65,10 @@ public class Profile {
         ProfileSchema data = gson.fromJson(reader, ProfileSchema.class); // contains the whole reviews list
 
         return new Profile(data);
+    }
+
+    @Nullable
+    public static Profile fromPclprof(VirtualFile profileFile) {
+        return fromPclprof(profileFile.getPath());
     }
 }

@@ -25,6 +25,9 @@
                              id="com.jusx.pycharm.lineprofiler.settings.SettingsConfigurable"
                              displayName="Line Profiler"
                              nonDefaultProject="false"/>
+        <!-- Extension for Line Profile Executor -->
+        <executor implementation="com.jusx.pycharm.lineprofiler.executor.ProfileExecutor" />
+        <programRunner implementation="com.jusx.pycharm.lineprofiler.executor.ProfileRunner" />
     </extensions>
 
     <actions>
@@ -52,17 +55,14 @@
             <action id="com.jusx.pycharm.lineprofiler.actions.RevisualiseFunctionTotalForFileAction"
                     class="com.jusx.pycharm.lineprofiler.actions.RevisualiseFunctionTotalForFileAction" text="Visualise Lineprofile by Function Time"
                     description="Visualizes profile with colored-lineprofiler plugin">
-                <add-to-group group-id="com.jusx.pycharm.lineprofiler.LineProfileVisualization" anchor="first"/>
             </action>
             <action id="com.jusx.pycharm.lineprofiler.actions.RevisualiseProfileTotalForFileAction"
                     class="com.jusx.pycharm.lineprofiler.actions.RevisualiseProfileTotalForFileAction" text="Visualise Lineprofile by Total Time"
                     description="Visualizes profile with colored-lineprofiler plugin">
-                <add-to-group group-id="com.jusx.pycharm.lineprofiler.LineProfileVisualization" anchor="after" relative-to-action="com.jusx.pycharm.lineprofiler.actions.RevisualiseFunctionTotalForFileAction"/>
             </action>
             <action id="com.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction"
                     class="com.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction" text="Dispose Line Profiler Visualization"
                     description="Visualizes profile with colored-lineprofiler plugin">
-                <add-to-group group-id="com.jusx.pycharm.lineprofiler.LineProfileVisualization" anchor="after" relative-to-action="com.jusx.pycharm.lineprofiler.actions.RevisualiseProfileTotalForFileAction"/>
             </action>
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="ShowIntentionsGroup"/>
