@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class FunctionProfile {
+public class FunctionProfile implements LineProvider {
     List<LineProfile> lineProfiles = new ArrayList<>();
     String file;
     int lineNo;
@@ -59,7 +59,7 @@ public class FunctionProfile {
         return maxLineTime;
     }
 
-    public int getLineNo() {
-        return lineNo;
+    public int getLineNrFromZero() {
+        return lineNo - 1;
     }
 }

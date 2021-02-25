@@ -1,14 +1,14 @@
 package com.jusx.pycharm.lineprofiler.service;
 
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.CaretModel;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.colors.EditorFontType;
+import com.intellij.openapi.editor.markup.DefaultLineMarkerRenderer;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -17,10 +17,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.jusx.pycharm.lineprofiler.profile.FunctionProfile;
 import com.jusx.pycharm.lineprofiler.profile.LineProfile;
+import com.jusx.pycharm.lineprofiler.profile.LineProvider;
 import com.jusx.pycharm.lineprofiler.profile.Profile;
-import jViridis.ColorMap;
+import com.jusx.pycharm.lineprofiler.render.FunctionProfileHighlighterRenderer;
+import com.jusx.pycharm.lineprofiler.render.LineProfileHighlighterRenderer;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,13 +39,12 @@ import java.util.Map;
 @Service
 public final class ProfileHighlightService {
     private static final Logger logger = Logger.getInstance(ProfileHighlightService.class.getName());
-    private static final int AMOUNT_OF_COLORS = 40;
+    private static final int GUTTER_COLOR_THICKNESS = 10;
+    private static final int MAX_COLUMN_ALIGNMENT_RESULTS_RENDER = 75;  // columns
 
     // Project to which this service belongs
     private final Project myProject;
 
-    // All possible colors that can be used as highlight background
-    private final Map<Integer, TextAttributes> lineBackgroundColorMap = new HashMap<>();
     // Highlighters, ordered per file
     private final Map<VirtualFile, List<RangeHighlighter>> highlighters = new HashMap<>();
     private final Map<VirtualFile, TimeFractionCalculation> fileTFC = new HashMap<>();
@@ -50,23 +52,6 @@ public final class ProfileHighlightService {
 
     public ProfileHighlightService(Project project) {
         myProject = project;
-
-        loadBackgroundColors();
-    }
-
-    /**
-     * Loads all colors that can be used as highlight background color
-     */
-    private void loadBackgroundColors() {
-        ColorMap cm = ColorMap.getInstance(ColorMap.VIRIDIS);
-
-        for (int i = 0; i < AMOUNT_OF_COLORS; i++) {
-            TextAttributes ta = new TextAttributes();
-
-            float colorFrac = ((float) i) / ((float) AMOUNT_OF_COLORS - 1);
-            ta.setBackgroundColor(cm.getColor(colorFrac));
-            lineBackgroundColorMap.put(i, ta);
-        }
     }
 
     /**
@@ -235,13 +220,55 @@ public final class ProfileHighlightService {
             timeDenominator = fProfile.getMaxLineTime();
         }
 
+
+        // Keep track of the end offset (end of text covered by highlighter) for each line
+        // With this we can determine a desired alignment for our profile result visualizations.
+        // We do maintain a maximum for the desired X position. Lines with text that exceed this max x position will
+        // have results that break alignment
+        int mostRightColumn = getLineEndColumn(fileEditor, fProfile).column;
+        for (LineProfile line : fProfile.getProfiledLines()) {
+            int checkColumn = getLineEndColumn(fileEditor, line).column;
+            if (checkColumn > mostRightColumn && checkColumn <= MAX_COLUMN_ALIGNMENT_RESULTS_RENDER) {
+                mostRightColumn = checkColumn;
+            }
+        }
+
+        // Create renderers
+        EditorColorsScheme scheme = fileEditor.getColorsScheme();
+        int fontSize = scheme.getEditorFontSize();
+        Font resultsRendererFont = scheme.getFont(EditorFontType.ITALIC).deriveFont(fontSize * 0.9f);
+        int desiredXAlignment = fileEditor.logicalPositionToXY(new LogicalPosition(0, mostRightColumn)).x;
+        FunctionProfileHighlighterRenderer functionProfileHighlighterRenderer = new FunctionProfileHighlighterRenderer(
+                DefaultLanguageHighlighterColors.INLINE_PARAMETER_HINT_HIGHLIGHTED,
+                resultsRendererFont,
+                desiredXAlignment
+        );
+        LineProfileHighlighterRenderer lineProfileHighlighterRenderer = new LineProfileHighlighterRenderer(
+                DefaultLanguageHighlighterColors.INLINE_PARAMETER_HINT_HIGHLIGHTED,
+                resultsRendererFont,
+                desiredXAlignment,
+                timeDenominator
+        );
+
+        // Keep track of the new highlighters
         List<RangeHighlighter> fileHighlighters = highlighters.computeIfAbsent(file, k -> new ArrayList<>());
 
+        // Create new highlighter for function profile (header highlighter)
+        RangeHighlighter fProfHighlighter = getHighlighter(fileEditor, fProfile);
+        fProfHighlighter.setCustomRenderer(functionProfileHighlighterRenderer);
+        fileHighlighters.add(fProfHighlighter);
+
+        // Create new highlighters for line profile
         for (LineProfile line : fProfile.getProfiledLines()) {
             RangeHighlighter rh = loadLineProfile(
                     fileEditor,
                     line,
                     timeDenominator);
+            // add profile to renderer for lookup purposes
+            lineProfileHighlighterRenderer.addLineProfile(rh, line);
+            // set renderer to range highlighter
+            rh.setCustomRenderer(lineProfileHighlighterRenderer);
+            // Track highlighter for management purposes
             fileHighlighters.add(rh);
         }
 
@@ -249,17 +276,33 @@ public final class ProfileHighlightService {
         fileTFC.put(file, timeFractionCalculation);
     }
 
-    private RangeHighlighter loadLineProfile(Editor editor, LineProfile lineProfile, float timeDenominator) {
-        int lineNo = lineProfile.getLineNrFromZero();
-        float timeFraction = lineProfile.getTime() / timeDenominator;
+    /**
+     * Returns logical position of last character on a line
+     * @param editor editor to check line in
+     * @param line line nr to check last position
+     */
+    private LogicalPosition getLineEndColumn(Editor editor, LineProvider line) {
+        int lineEndOffset = editor.getDocument().getLineEndOffset(line.getLineNrFromZero());
+        return editor.offsetToLogicalPosition(lineEndOffset);
+    }
 
-        int colorIndex = (int) (timeFraction * (float) (AMOUNT_OF_COLORS - 1));
-
+    private RangeHighlighter getHighlighter(Editor editor, LineProvider line) {
         return editor.getMarkupModel()
                 .addLineHighlighter(
-                        lineNo,
-                        HighlighterLayer.CARET_ROW - 1,
-                        lineBackgroundColorMap.get(colorIndex));
+                        null,
+                        line.getLineNrFromZero(),
+                        HighlighterLayer.CARET_ROW - 1
+                );
+    }
+
+    private RangeHighlighter loadLineProfile(Editor editor, LineProfile lineProfile, float timeDenominator) {
+        ColorMapService colorMapService = ServiceManager.getService(ColorMapService.class);
+
+        RangeHighlighter hl = getHighlighter(editor, lineProfile);
+
+        hl.setLineMarkerRenderer(new DefaultLineMarkerRenderer(
+                colorMapService.getTimeFractionTextAttributesKey(lineProfile, timeDenominator), GUTTER_COLOR_THICKNESS));
+        return hl;
     }
 }
 
