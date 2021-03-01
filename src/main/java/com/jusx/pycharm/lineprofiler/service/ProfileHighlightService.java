@@ -291,7 +291,7 @@ public final class ProfileHighlightService {
                 .addLineHighlighter(
                         null,
                         line.getLineNrFromZero(),
-                        HighlighterLayer.CARET_ROW - 1
+                        HighlighterLayer.SELECTION
                 );
     }
 
