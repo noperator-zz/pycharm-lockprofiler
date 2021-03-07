@@ -8,10 +8,9 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.jusx.pycharm.lineprofiler.profile.LineProfile;
 import com.jusx.pycharm.lineprofiler.service.ColorMapService;
+import com.jusx.pycharm.lineprofiler.service.ProfileHighlightService;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Renderer which renders line profile results behind code in the editor
@@ -24,33 +23,30 @@ public class LineProfileHighlighterRenderer extends BaseProfileHighlighterRender
 
     private final float timeDenominator;
 
-    private final Map<RangeHighlighter, LineProfile> lineProfiles = new HashMap<>();
-
-    public LineProfileHighlighterRenderer(TextAttributesKey textColorKey, Font font, int resultsXAlignment, float timeDenominator) {
-        super(textColorKey, font, resultsXAlignment);
+    public LineProfileHighlighterRenderer(TextAttributesKey textColorKey, Font font,
+                                          TableAlignment desiredTableAlignment, float timeDenominator) {
+        super(textColorKey, font, desiredTableAlignment);
         this.timeDenominator = timeDenominator;
     }
 
-    public void addLineProfile(RangeHighlighter rh, LineProfile line) {
-        lineProfiles.put(rh, line);
-    }
-
     @Override
-    protected void paintAligned(Editor editor, RangeHighlighter highlighter, Graphics g, Point renderAnchor) {
-        super.paintAligned(editor, highlighter, g, renderAnchor);
+    protected void paintTableAligned(Editor editor, RangeHighlighter highlighter, Graphics g, Point renderAnchor) {
+        super.paintTableAligned(editor, highlighter, g, renderAnchor);
         paintColorbar(editor, highlighter, g, renderAnchor);
     }
 
     /**
-     * Paints the color block next to a lign, visualizing the timefraction
+     * Paints the color block next to a line, visualizing the timefraction
      * @param editor editor to draw for
      * @param highlighter highlighter to paint colorbar for, is used to look up the line profile
      * @param g graphic to draw in
      * @param renderOrigin anchor for results rendering
      */
     private void paintColorbar(Editor editor, RangeHighlighter highlighter, Graphics g, Point renderOrigin) {
+        ProfileHighlightService profileHighlightService = editor.getProject().getService(ProfileHighlightService.class);
+
         // Get LineProfile based on the highlighter
-        LineProfile lineProfile = lineProfiles.get(highlighter);
+        LineProfile lineProfile = profileHighlightService.getLineProfile(highlighter);
         assert lineProfile != null;
 
         ColorMapService colorMapService = ServiceManager.getService(ColorMapService.class);
@@ -65,9 +61,11 @@ public class LineProfileHighlighterRenderer extends BaseProfileHighlighterRender
     }
 
     @Override
-    protected String getResultTableString(RangeHighlighter highlighter) {
+    protected String getResultTableString(Editor editor, RangeHighlighter highlighter) {
+        ProfileHighlightService profileHighlightService = editor.getProject().getService(ProfileHighlightService.class);
+
         // Get LineProfile based on the highlighter
-        LineProfile lineProfile = lineProfiles.get(highlighter);
+        LineProfile lineProfile = profileHighlightService.getLineProfile(highlighter);
         assert lineProfile != null;
 
         return String.format("%6.1f%15d%15.0f%15.1f",
