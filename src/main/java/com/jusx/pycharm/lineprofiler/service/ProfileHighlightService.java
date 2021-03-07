@@ -245,9 +245,7 @@ public final class ProfileHighlightService {
         }
 
         float timeDenominator = 0;
-        if (timeFractionCalculation == TimeFractionCalculation.PROFILE_TOTAL) {
-            timeDenominator = currentProfile.getTotalTime();
-        } else if (timeFractionCalculation == TimeFractionCalculation.FUNCTION_TOTAL) {
+        if (timeFractionCalculation == TimeFractionCalculation.FUNCTION_TOTAL) {
             timeDenominator = fProfile.getTotalTime();
         } else if (timeFractionCalculation == TimeFractionCalculation.FUNCTION_MAX_LINE_TIME) {
             timeDenominator = fProfile.getMaxLineTime();
@@ -269,8 +267,7 @@ public final class ProfileHighlightService {
                 resultsRendererFont,
                 desiredTableAlignment,
                 fProfile,
-                currentProfile,
-                timeFractionCalculation
+                currentProfile
         );
         LineProfileHighlighterRenderer lineProfileHighlighterRenderer = new LineProfileHighlighterRenderer(
                 DefaultLanguageHighlighterColors.INLINE_PARAMETER_HINT_HIGHLIGHTED,

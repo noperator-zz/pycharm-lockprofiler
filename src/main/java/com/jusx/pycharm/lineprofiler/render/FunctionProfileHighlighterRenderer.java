@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.jusx.pycharm.lineprofiler.profile.FunctionProfile;
 import com.jusx.pycharm.lineprofiler.profile.Profile;
-import com.jusx.pycharm.lineprofiler.service.TimeFractionCalculation;
 import jViridis.ColorMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +23,6 @@ public class FunctionProfileHighlighterRenderer extends BaseProfileHighlighterRe
 
     private final FunctionProfile functionProfile;
     private final Profile profile;
-    private final TimeFractionCalculation timeFractionCalculation;
 
     private int colormapWidth = 0;
 
@@ -32,13 +30,11 @@ public class FunctionProfileHighlighterRenderer extends BaseProfileHighlighterRe
     public FunctionProfileHighlighterRenderer(
             TextAttributesKey textColorKey, Font font,
             TableAlignment desiredTableAlignment,
-            FunctionProfile functionProfile, Profile profile,
-            TimeFractionCalculation timeFractionCalculation) {
+            FunctionProfile functionProfile, Profile profile) {
         super(textColorKey, font, desiredTableAlignment);
 
         this.functionProfile = functionProfile;
         this.profile = profile;
-        this.timeFractionCalculation = timeFractionCalculation;
     }
 
     @Override
@@ -64,9 +60,8 @@ public class FunctionProfileHighlighterRenderer extends BaseProfileHighlighterRe
         metadataAnchor.y = metadataAnchor.y - editor.getLineHeight();
 
         paintString(editor, g, metadataAnchor,
-                String.format("FT: %.0f  ;  TPT: %.0f [%.6f s]   |   FT = Function Time    ;    TPT = Total Profile Time",
+                String.format("Time in function: %.0f [%.6f s]",
                         functionProfile.getTotalTime(),
-                        profile.getTotalTime(),
                         profile.getUnit()));
     }
 
@@ -115,13 +110,7 @@ public class FunctionProfileHighlighterRenderer extends BaseProfileHighlighterRe
 
     @Override
     protected String getResultTableString(Editor editor, RangeHighlighter highlighter) {
-        String percTime = "";
-        if (timeFractionCalculation == TimeFractionCalculation.PROFILE_TOTAL) {
-            percTime = "% TPT";
-        } else if (timeFractionCalculation == TimeFractionCalculation.FUNCTION_TOTAL) {
-            percTime = "% FT";
-        }
         return String.format("%6s%15s%15s%15s",
-                percTime, "Hits", "Time", "Time / Hit");
+                "% Time", "Hits", "Time", "Time / Hit");
     }
 }

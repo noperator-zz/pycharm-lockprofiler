@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class SettingsState implements PersistentStateComponent<SettingsState> {
 
 //    public String userId = "John Q. Public";
-    public TimeFractionCalculation defaultTimeFractionCalculation = TimeFractionCalculation.FUNCTION_TOTAL;
+//    public TimeFractionCalculation defaultTimeFractionCalculation = TimeFractionCalculation.FUNCTION_TOTAL;
 
     public static SettingsState getInstance() {
         return ServiceManager.getService(SettingsState.class);

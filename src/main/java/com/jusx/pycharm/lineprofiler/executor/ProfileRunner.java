@@ -15,7 +15,7 @@ import com.jetbrains.python.run.PythonRunConfiguration;
 import com.jetbrains.python.run.PythonRunner;
 import com.jusx.pycharm.lineprofiler.profile.Profile;
 import com.jusx.pycharm.lineprofiler.service.ProfileHighlightService;
-import com.jusx.pycharm.lineprofiler.settings.SettingsState;
+import com.jusx.pycharm.lineprofiler.service.TimeFractionCalculation;
 import com.jusx.pycharm.lineprofiler.utils.LineProfilerPycharmSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -141,11 +141,10 @@ public class ProfileRunner extends PythonRunner {
         ProfileHighlightService profileHighlightService = project.getService(ProfileHighlightService.class);
 
         Profile profile = Profile.fromPclprof(pclprofPath);
-        SettingsState settings = SettingsState.getInstance();
 
         ApplicationManager.getApplication().invokeLater(() -> {
             profileHighlightService.setProfile(profile);
-            profileHighlightService.visualizeProfile(settings.defaultTimeFractionCalculation);
+            profileHighlightService.visualizeProfile(TimeFractionCalculation.FUNCTION_TOTAL);
         });
     }
 }

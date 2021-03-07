@@ -16,11 +16,6 @@ public class VisualiseLineProfilerAction extends AnAction {
     private static final Logger logger = Logger.getInstance(VisualiseLineProfilerAction.class.getName());
 
     @Override
-    public void update(@NotNull AnActionEvent e) {
-        super.update(e);
-    }
-
-    @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         VirtualFile profileFile = event.getData(VIRTUAL_FILE);
         if (profileFile == null || profileFile.getExtension() == null || !profileFile.getExtension().equals("pclprof")) {
@@ -40,6 +35,6 @@ public class VisualiseLineProfilerAction extends AnAction {
     }
 
     protected TimeFractionCalculation withTimeFractionCalculation() {
-        return TimeFractionCalculation.PROFILE_TOTAL;
+        return TimeFractionCalculation.FUNCTION_TOTAL;
     }
 }

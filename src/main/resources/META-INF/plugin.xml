@@ -33,36 +33,25 @@
     <actions>
         <!-- Add your actions here -->
         <!-- Group for project menu -->
-        <group id="com.jusx.pycharm.lineprofiler.VisualizeProfileGroupedActions" text="Visualize Profile" popup="true"
-               class="com.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroup">
+        <group id="com.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroupProject" text="Line Profile Visualization" popup="false"
+               class="com.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroup" >
+            <separator/>
+            <action id="com.jusx.pycharm.lineprofiler.actions.VisualizeFunctionTime"
+                    class="com.jusx.pycharm.lineprofiler.actions.VisualiseLineProfilerAction" text="Visualize Profile"
+                    description="Visualizes profile with Line Profiler plugin">
+            </action>
+            <separator/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
         </group>
-        <action id="com.jusx.pycharm.lineprofiler.actions.VisualizeFunctionTime"
-                class="com.jusx.pycharm.lineprofiler.actions.VisualiseLineProfilerFunctionTotalAction" text="By Function Time"
-                description="Visualizes profile with colored-lineprofiler plugin">
-            <add-to-group group-id="com.jusx.pycharm.lineprofiler.VisualizeProfileGroupedActions" anchor="first"/>
-        </action>
-        <action id="com.jusx.pycharm.lineprofiler.actions.VisualizeTotalTime"
-                class="com.jusx.pycharm.lineprofiler.actions.VisualiseLineProfilerAction" text="By Total Time"
-                description="Visualizes profile with colored-lineprofiler plugin">
-            <add-to-group group-id="com.jusx.pycharm.lineprofiler.VisualizeProfileGroupedActions" anchor="after" relative-to-action="com.jusx.pycharm.lineprofiler.actions.VisualizeFunctionTime"/>
-        </action>
+
 
         <!-- Group for editor menu -->
         <group id="com.jusx.pycharm.lineprofiler.LineProfileVisualization" text="Line Profile Visualization" popup="false"
                class="com.intellij.openapi.actionSystem.DefaultActionGroup" >
             <separator/>
-            <action id="com.jusx.pycharm.lineprofiler.actions.RevisualiseFunctionTotalForFileAction"
-                    class="com.jusx.pycharm.lineprofiler.actions.RevisualiseFunctionTotalForFileAction" text="Visualise Lineprofile by Function Time"
-                    description="Visualizes profile with colored-lineprofiler plugin">
-            </action>
-            <action id="com.jusx.pycharm.lineprofiler.actions.RevisualiseProfileTotalForFileAction"
-                    class="com.jusx.pycharm.lineprofiler.actions.RevisualiseProfileTotalForFileAction" text="Visualise Lineprofile by Total Time"
-                    description="Visualizes profile with colored-lineprofiler plugin">
-            </action>
             <action id="com.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction"
                     class="com.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction" text="Dispose Line Profiler Visualization"
-                    description="Visualizes profile with colored-lineprofiler plugin">
+                    description="Dispose visualization from Line Profiler plugin">
             </action>
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="ShowIntentionsGroup"/>
