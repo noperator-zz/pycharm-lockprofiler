@@ -45,7 +45,7 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
         FontMetrics metrics = getFontMetrics(inlay.getEditor());
 
         return RESULT_TABLE_STRING_MARGIN_BLOCKS * margin +
-                // 51 ' ' because of the results table string format
+                // 51 ' ' because of the results table string format (6 + 15 + 15 + 15)
                 metrics.charWidth(' ') * 51;
     }
 
