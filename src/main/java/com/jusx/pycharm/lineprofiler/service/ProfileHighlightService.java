@@ -243,8 +243,6 @@ public final class ProfileHighlightService {
 
         InlayModel inlayModel = fileEditor.getInlayModel();
         int offset;
-        // Keep list of new inlays
-        List<Inlay<?>> inlays = new ArrayList<>();
 
         // Create new inlay for function profile (contains profile meta data))
         FunctionProfileInlayRenderer fRenderer = new FunctionProfileInlayRenderer(
@@ -256,7 +254,6 @@ public final class ProfileHighlightService {
         Inlay<FunctionProfileInlayRenderer> fInlay = inlayModel.addBlockElement(
                 offset, true, true, 100, fRenderer);
         addInlay(fInlay, file);
-        inlays.add(fInlay);
 
         // Create new visualizations for line profile
         for (LineProfile line : fProfile.getProfiledLines()) {
@@ -274,13 +271,9 @@ public final class ProfileHighlightService {
                     desiredTableAlignment,
                     getMargin(getFontMetrics(fileEditor)));
             offset = fileEditor.logicalPositionToOffset(new LogicalPosition(line.getLineNrFromZero(), 0));
-            Inlay<LineProfileInlayRenderer> inlay = inlayModel.addAfterLineEndElement(offset, true, renderer);
+            Inlay<LineProfileInlayRenderer> inlay = inlayModel.addAfterLineEndElement(offset, false, renderer);
             addInlay(inlay, file);
-            inlays.add(inlay);
         }
-
-        // Repaint to ensure that all text is aligned TODO not working...
-        ApplicationManager.getApplication().invokeLater(() -> inlays.forEach(Inlay::update));
 
         // Set the currently used TimeFractionCalculation
         fileTFC.put(file, timeFractionCalculation);
