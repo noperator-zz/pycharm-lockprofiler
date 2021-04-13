@@ -236,12 +236,21 @@ public final class ProfileHighlightService {
         }
 
 
+        setFunctionProfileVisualizations(fileEditor, fProfile, file, timeDenominator);
+
+        // Set the currently used TimeFractionCalculation
+        fileTFC.put(file, timeFractionCalculation);
+    }
+
+    private void setFunctionProfileVisualizations(Editor editor,
+                                                  FunctionProfile fProfile,
+                                                  VirtualFile file, float timeDenominator) {
         // We keep an alignment object that is passed to each render
         // With this alignment object multiple renderers can agree upon the table x offset for results table
         TableAlignment desiredTableAlignment = new TableAlignment();
 
 
-        InlayModel inlayModel = fileEditor.getInlayModel();
+        InlayModel inlayModel = editor.getInlayModel();
         int offset;
 
         // Create new inlay for function profile (contains profile meta data))
@@ -250,7 +259,7 @@ public final class ProfileHighlightService {
                 currentProfile,
                 desiredTableAlignment
         );
-        offset = fileEditor.logicalPositionToOffset(new LogicalPosition(fProfile.getLineNrFromZero(), 0));
+        offset = editor.logicalPositionToOffset(new LogicalPosition(fProfile.getLineNrFromZero(), 0));
         Inlay<FunctionProfileInlayRenderer> fInlay = inlayModel.addBlockElement(
                 offset, true, true, 100, fRenderer);
         addInlay(fInlay, file);
@@ -259,7 +268,7 @@ public final class ProfileHighlightService {
         for (LineProfile line : fProfile.getProfiledLines()) {
             // Highlighter for gutter color
             RangeHighlighter rh = loadLineProfile(
-                    fileEditor,
+                    editor,
                     line,
                     timeDenominator);
             addHighlighter(rh, file);
@@ -269,14 +278,11 @@ public final class ProfileHighlightService {
                     line,
                     timeDenominator,
                     desiredTableAlignment,
-                    getMargin(getFontMetrics(fileEditor)));
-            offset = fileEditor.logicalPositionToOffset(new LogicalPosition(line.getLineNrFromZero(), 0));
+                    getMargin(getFontMetrics(editor)));
+            offset = editor.logicalPositionToOffset(new LogicalPosition(line.getLineNrFromZero(), 0));
             Inlay<LineProfileInlayRenderer> inlay = inlayModel.addAfterLineEndElement(offset, false, renderer);
             addInlay(inlay, file);
         }
-
-        // Set the currently used TimeFractionCalculation
-        fileTFC.put(file, timeFractionCalculation);
     }
 
     private RangeHighlighter loadLineProfile(Editor editor, LineProfile lineProfile, float timeDenominator) {
