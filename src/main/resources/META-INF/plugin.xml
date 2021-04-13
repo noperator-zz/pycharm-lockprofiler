@@ -1,11 +1,18 @@
 <idea-plugin>
-    <id>com.jusx.pycharm.lineprofiler</id>
-    <name>Plugin display name here</name>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <id>nl.jusx.pycharm.lineprofiler</id>
+    <name>Line Profiler</name>
+    <vendor email="jhwj.ingels@gmail.com" url="https://gitlab.com/line-profiler-pycharm">Justen Ingels</vendor>
 
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    The PyCharm Line Profiler plugin.<br>
+    This plugin uses the python line-profiler-pycharm package to create and visualize line profiles into PyCharm.
+    The following data is displayed inline at the corresponding code: <br>
+    <ul>
+      <li>% Time spent at line: colormapped and displayed numerically</li>
+      <li>Hits of line: displayed numerically</li>
+      <li>Time spent at line: displayed numerically</li>
+      <li>Time / hit spent at line: displayed numerically</li>
+    </ul>
     ]]></description>
 
     <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -15,29 +22,29 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <enterHandlerDelegate implementation="com.jusx.pycharm.lineprofiler.handlers.MyEnterHandler" />
-        <backspaceHandlerDelegate implementation="com.jusx.pycharm.lineprofiler.handlers.MyBackspaceHandler" />
-        <typedHandler implementation="com.jusx.pycharm.lineprofiler.handlers.TypedHandler" />
+        <enterHandlerDelegate implementation="nl.jusx.pycharm.lineprofiler.handlers.MyEnterHandler" />
+        <backspaceHandlerDelegate implementation="nl.jusx.pycharm.lineprofiler.handlers.MyBackspaceHandler" />
+        <typedHandler implementation="nl.jusx.pycharm.lineprofiler.handlers.TypedHandler" />
         <notificationGroup id="Line Profiler Notifications" displayType="BALLOON" />
         <!-- Extensions for settings -->
-        <applicationService serviceImplementation="com.jusx.pycharm.lineprofiler.settings.SettingsState"/>
-        <projectConfigurable parentId="tools" instance="com.jusx.pycharm.lineprofiler.settings.SettingsConfigurable"
-                             id="com.jusx.pycharm.lineprofiler.settings.SettingsConfigurable"
+        <applicationService serviceImplementation="nl.jusx.pycharm.lineprofiler.settings.SettingsState"/>
+        <projectConfigurable parentId="tools" instance="nl.jusx.pycharm.lineprofiler.settings.SettingsConfigurable"
+                             id="nl.jusx.pycharm.lineprofiler.settings.SettingsConfigurable"
                              displayName="Line Profiler"
                              nonDefaultProject="false"/>
         <!-- Extension for Line Profile Executor -->
-        <executor implementation="com.jusx.pycharm.lineprofiler.executor.ProfileExecutor" />
-        <programRunner implementation="com.jusx.pycharm.lineprofiler.executor.ProfileRunner" />
+        <executor implementation="nl.jusx.pycharm.lineprofiler.executor.ProfileExecutor" />
+        <programRunner implementation="nl.jusx.pycharm.lineprofiler.executor.ProfileRunner" />
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
         <!-- Group for project menu -->
-        <group id="com.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroupProject" text="Line Profile Visualization" popup="false"
-               class="com.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroup" >
+        <group id="nl.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroupProject" text="Line Profile Visualization" popup="false"
+               class="nl.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroup" >
             <separator/>
-            <action id="com.jusx.pycharm.lineprofiler.actions.VisualizeFunctionTime"
-                    class="com.jusx.pycharm.lineprofiler.actions.VisualiseLineProfilerAction" text="Visualize Profile"
+            <action id="nl.jusx.pycharm.lineprofiler.actions.VisualizeFunctionTime"
+                    class="nl.jusx.pycharm.lineprofiler.actions.VisualiseLineProfilerAction" text="Visualize Profile"
                     description="Visualizes profile with Line Profiler plugin">
             </action>
             <separator/>
@@ -46,11 +53,11 @@
 
 
         <!-- Group for editor menu -->
-        <group id="com.jusx.pycharm.lineprofiler.LineProfileVisualization" text="Line Profile Visualization" popup="false"
+        <group id="nl.jusx.pycharm.lineprofiler.LineProfileVisualization" text="Line Profile Visualization" popup="false"
                class="com.intellij.openapi.actionSystem.DefaultActionGroup" >
             <separator/>
-            <action id="com.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction"
-                    class="com.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction" text="Dispose Line Profiler Visualization"
+            <action id="nl.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction"
+                    class="nl.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction" text="Dispose Line Profiler Visualization"
                     description="Dispose visualization from Line Profiler plugin">
             </action>
             <separator/>

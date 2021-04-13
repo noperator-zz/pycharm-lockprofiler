@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.intellij' version '0.6.5'
 }
 
-group 'com.jusx.pycharm'
+group 'nl.jusx.pycharm.lineprofiler'
 version '1.0.0'
 
 repositories {
