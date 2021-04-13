@@ -53,7 +53,7 @@ public class ProfileRunner extends PythonRunner {
     @Override
     protected @NotNull Promise<@Nullable RunContentDescriptor> execute(@NotNull ExecutionEnvironment env, @NotNull RunProfileState state) {
         ProfileHighlightService profileHighlightService = env.getProject().getService(ProfileHighlightService.class);
-        ApplicationManager.getApplication().invokeLater(profileHighlightService::disposeAllHighlighters);
+        ApplicationManager.getApplication().invokeLater(profileHighlightService::disposeAllVisualizations);
 
         PythonRunConfiguration runConfiguration = (PythonRunConfiguration) env.getRunProfile();
 

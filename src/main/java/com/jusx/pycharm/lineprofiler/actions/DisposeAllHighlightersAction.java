@@ -20,7 +20,7 @@ public class DisposeAllHighlightersAction extends AnAction {
         ProfileHighlightService profileHighlightService = currentProject.getService(ProfileHighlightService.class);
         VirtualFile srcFile = e.getData(VIRTUAL_FILE);
         // Only enable this action when there is something to remove
-        e.getPresentation().setEnabled(profileHighlightService.containsHighlights(srcFile));
+        e.getPresentation().setEnabled(profileHighlightService.containsVisualizations(srcFile));
         super.update(e);
     }
 
