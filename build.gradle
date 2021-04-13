@@ -24,6 +24,9 @@ intellij {
     version '2020.3'
     type 'PC'
     plugins = ['python-ce']
+    runPluginVerifier {
+        ideVersions = ["PC-2020.3", "PC-2021.1"]
+    }
 }
 patchPluginXml {
     changeNotes """
