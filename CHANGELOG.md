@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- PyCharm colored lineprofiler plugin that visualizes profiles from the python package `line-profiler`
-  with help of our own `line-profiler-pycharm` helper python package
+- Initial version with a profile executor
 
 [Unreleased]: https://gitlab.com/jusx/pycharm-lineprofiler/tree/dev

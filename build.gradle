@@ -30,8 +30,12 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
+    <h2>1.0.0 - 2021-04-13</h2>
+    <h3>Added</h3>
+    <ul>
+    <li>Initial version with a profile executor</li>
+    </ul>
+    """
 }
 test {
     useJUnitPlatform()
