@@ -129,14 +129,23 @@ public final class ProfileHighlightService {
         Document document = editor.getDocument();
         VirtualFile file = FileDocumentManager.getInstance().getFile(document);
 
-        // Check if there are highlighters for the current file, if not return
+        // Check if there are highlighters and inlays for the current file
         List<RangeHighlighter> fileHighlighters = highlighters.get(file);
-        if (fileHighlighters == null) {
+
+        List<Inlay<?>> fileInlays = inlays.get(file);
+        if (fileHighlighters == null && fileInlays == null) {
             return;
         }
+        if (fileHighlighters == null) {
+            fileHighlighters = new ArrayList<>();
+        }
+        if (fileInlays == null) {
+            fileInlays = new ArrayList<>();
+        }
 
-        // Keep track of a list of disposed highlighters
-        List<RangeHighlighter> disposed = new ArrayList<>();
+        // Keep track of a list of disposed highlighters and inlays
+        List<RangeHighlighter> disposedHighlighters = new ArrayList<>();
+        List<Inlay<?>> disposedInlays = new ArrayList<>();
 
         // Get all carets that need to be checked for highlight overlap
         CaretModel cm = editor.getCaretModel();
@@ -147,22 +156,32 @@ public final class ProfileHighlightService {
             int caretStartLine = document.getLineNumber(caret.getSelectionStart());
             int caretEndLine = document.getLineNumber(caret.getSelectionEnd());
 
-            for (RangeHighlighter rh : fileHighlighters) {
+            fileHighlighters.forEach(highlighter -> {
                 // Test overlap
-                if (rh.getDocument() != document) { continue; }
+                if (highlighter.getDocument() != document) { return; }
 
-                int rhLine = document.getLineNumber(rh.getStartOffset());
+                int rhLine = document.getLineNumber(highlighter.getStartOffset());
 
                 if (caretStartLine <= rhLine && caretEndLine >= rhLine) {
                     // There is overlap, dispose
-                    rh.dispose();
-                    disposed.add(rh);
+                    highlighter.dispose();
+                    disposedHighlighters.add(highlighter);
                 }
-            }
+            });
+            fileInlays.forEach(inlay -> {
+                int inlayLine = document.getLineNumber(inlay.getOffset());
+                if (caretStartLine <= inlayLine && caretEndLine >= inlayLine) {
+                    // There is overlap, dispose
+                    inlay.dispose();
+                    disposedInlays.add(inlay);
+                }
+            });
         }
 
         // Remove reference to all disposed highlighters
-        fileHighlighters.removeAll(disposed);
+        fileHighlighters.removeAll(disposedHighlighters);
+        fileInlays.removeAll(disposedInlays);
+
     }
 
     /**
