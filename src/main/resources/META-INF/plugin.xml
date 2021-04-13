@@ -1,22 +1,99 @@
 <idea-plugin>
-    <id>com.jusx.pycharm-lineprofiler</id>
-    <name>Plugin display name here</name>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <id>nl.jusx.pycharm.lineprofiler</id>
+    <name>Line Profiler</name>
+    <vendor email="jhwj.ingels@gmail.com" url="https://gitlab.com/line-profiler-pycharm">Justen Ingels</vendor>
 
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    <h1>A PyCharm Line Profiler plugin</h1>
+      This plugin uses the python line-profiler package to create and visualize line profiles into PyCharm.
+      The following data is displayed inline at the corresponding code:
+      <ul>
+        <li>% Time spent at line: colormapped and displayed numerically</li>
+        <li>Hits of line: displayed numerically</li>
+        <li>Time spent at line: displayed numerically</li>
+        <li>Time / hit spent at line: displayed numerically</li>
+      </ul>
+    <h1>Getting started</h1>
+    Profiling code with PyCharm Line Profiler is done in 3 steps:
+    <ol>
+      <li><b>import line-profiler-pycharm decorator</b><br>
+      Add the following import to the python files in which you want to profile functions:
+      <br><br>
+      from line_profiler_pycharm import profile<br><br>
+      <li><b>decorate your functions</b><br>
+      Decorate the functions you want to profile with the decorator:<br><br>
+      @profile<br>
+      def some_method():<br>
+      &nbsp;&nbsp;# some code you want to profile
+
+     </li>
+     <li><b>profile!</b><br>
+     Execute with 'Line Profile' that is installed with this plugin</li>
+     When the execution is finished, Line Profiler will visualize the profile automatically.
+    </ol>
+    See the screenshots for examples.
+    <h1>Helper package</h1>
+    As seen in 'Getting started', the plugin uses a helper package called 'line-profiler-pycharm'. The first time you profile your code with Line Profiler, the plugin will ask whether it should install this package into your python environment. <br>
+    Alternatively you can install the package yourself with pip: <br><br>
+    pip install line-profiler-pycharm
+
+    <h1>3rd party code</h1>
+    This project uses the following opensource software:
+    <ol>
+    <li>
+    <a href="https://github.com/Jsalam/JViridis">jViridis</a>
+    </li>
+    </ol>
+
     ]]></description>
 
     <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
+    <depends>com.intellij.modules.python</depends>
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <enterHandlerDelegate implementation="nl.jusx.pycharm.lineprofiler.handlers.MyEnterHandler" />
+        <backspaceHandlerDelegate implementation="nl.jusx.pycharm.lineprofiler.handlers.MyBackspaceHandler" />
+        <typedHandler implementation="nl.jusx.pycharm.lineprofiler.handlers.TypedHandler" />
+        <notificationGroup id="Line Profiler Notifications" displayType="BALLOON" />
+        <!-- Extensions for settings -->
+        <applicationService serviceImplementation="nl.jusx.pycharm.lineprofiler.settings.SettingsState"/>
+        <projectConfigurable parentId="tools" instance="nl.jusx.pycharm.lineprofiler.settings.SettingsConfigurable"
+                             id="nl.jusx.pycharm.lineprofiler.settings.SettingsConfigurable"
+                             displayName="Line Profiler"
+                             nonDefaultProject="false"/>
+        <!-- Extension for Line Profile Executor -->
+        <executor implementation="nl.jusx.pycharm.lineprofiler.executor.ProfileExecutor" />
+        <programRunner implementation="nl.jusx.pycharm.lineprofiler.executor.ProfileRunner" />
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
+        <!-- Group for project menu -->
+        <group id="nl.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroupProject" text="Line Profile Visualization" popup="false"
+               class="nl.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroup" >
+            <separator/>
+            <action id="nl.jusx.pycharm.lineprofiler.actions.VisualizeFunctionTime"
+                    class="nl.jusx.pycharm.lineprofiler.actions.VisualiseLineProfilerAction" text="Visualize Profile"
+                    description="Visualizes profile with Line Profiler plugin">
+            </action>
+            <separator/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+        </group>
+
+
+        <!-- Group for editor menu -->
+        <group id="nl.jusx.pycharm.lineprofiler.LineProfileVisualization" text="Line Profile Visualization" popup="false"
+               class="com.intellij.openapi.actionSystem.DefaultActionGroup" >
+            <separator/>
+            <action id="nl.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction"
+                    class="nl.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction" text="Dispose Line Profiler Visualization"
+                    description="Dispose visualization from Line Profiler plugin">
+            </action>
+            <separator/>
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="ShowIntentionsGroup"/>
+        </group>
     </actions>
 </idea-plugin>

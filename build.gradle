@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.intellij' version '0.6.5'
 }
 
-group 'com.jusx'
+group 'nl.jusx.pycharm.lineprofiler'
 version '1.0.0'
 
 repositories {
@@ -11,19 +11,31 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    implementation files('lib/jViridis.jar')
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    type 'PC'
     version '2020.3'
+    type 'PC'
+    plugins = ['python-ce']
+    runPluginVerifier {
+        ideVersions = ["PC-2020.3", "PC-2021.1"]
+    }
 }
 patchPluginXml {
     changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
+    <h2>1.0.0 - 2021-04-13</h2>
+    <h3>Added</h3>
+    <ul>
+    <li>Initial version with a profile executor</li>
+    </ul>
+    """
 }
 test {
     useJUnitPlatform()
