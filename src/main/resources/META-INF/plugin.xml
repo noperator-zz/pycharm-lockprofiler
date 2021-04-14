@@ -41,6 +41,9 @@
     This project uses the following opensource software:
     <ol>
     <li>
+    <a href="https://pypi.org/project/line-profiler/">line-profiler</a>
+    </li>
+    <li>
     <a href="https://github.com/Jsalam/JViridis">jViridis</a>
     </li>
     </ol>
