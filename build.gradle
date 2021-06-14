@@ -55,6 +55,9 @@ patchPluginXml {
     </ul>
     """
 }
+publishPlugin {
+    token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
+}
 test {
     useJUnitPlatform()
 }
