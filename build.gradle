@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'nl.jusx.pycharm.lineprofiler'
-version '1.1.0'
+version '1.2.0'
 
 repositories {
     mavenCentral()
@@ -21,7 +21,7 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2020.3'
+    version '2021.1'
     type 'PC'
     plugins = ['python-ce']
     runPluginVerifier {
@@ -32,6 +32,17 @@ patchPluginXml {
     sinceBuild '203'
     untilBuild '211.*'
     changeNotes """
+    <h2>1.2.0 - 2021-06-14</h2>
+    <h3>Added</h3>
+    <ul>
+    <li>Profile result colors are also visible as scrollbar error stripes</li>
+    </ul>
+    <h3>Changed</h3>
+    <ul>
+    <li>Use line-profiler-pycharm v1.1.0<br>
+    This makes it possible to use the PyCharm debugger while methods are decorated with @profile
+    </li>
+    </ul>
     <h2>1.1.0 - 2021-04-14</h2>
     <h3>Changed</h3>
     <ul>
@@ -43,6 +54,9 @@ patchPluginXml {
     <li>Initial version with a profile executor</li>
     </ul>
     """
+}
+publishPlugin {
+    token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
 }
 test {
     useJUnitPlatform()
