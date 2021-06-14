@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'nl.jusx.pycharm.lineprofiler'
-version '1.1.0'
+version '1.2.0'
 
 repositories {
     mavenCentral()
@@ -32,14 +32,16 @@ patchPluginXml {
     sinceBuild '203'
     untilBuild '211.*'
     changeNotes """
-    <h2>Unreleased</h2>
+    <h2>1.2.0 - 2021-06-14</h2>
     <h3>Added</h3>
     <ul>
     <li>Profile result colors are also visible as scrollbar error stripes</li>
     </ul>
     <h3>Changed</h3>
     <ul>
-    <li>Use line-profiler-pycharm v1.1.0</li>
+    <li>Use line-profiler-pycharm v1.1.0<br>
+    This makes it possible to use the PyCharm debugger while methods are decorated with @profile
+    </li>
     </ul>
     <h2>1.1.0 - 2021-04-14</h2>
     <h3>Changed</h3>
