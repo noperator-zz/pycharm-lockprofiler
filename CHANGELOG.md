@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Profile result colors are also visible as scrollbar error stripes
 
+### Changed
+- Use line-profiler-pycharm v1.1.0
+
 ## [1.1.0] - 2021-04-14
 ### Changed
 - Plugin is made available for 203 - 211.*

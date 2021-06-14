@@ -37,6 +37,10 @@ patchPluginXml {
     <ul>
     <li>Profile result colors are also visible as scrollbar error stripes</li>
     </ul>
+    <h3>Changed</h3>
+    <ul>
+    <li>Use line-profiler-pycharm v1.1.0</li>
+    </ul>
     <h2>1.1.0 - 2021-04-14</h2>
     <h3>Changed</h3>
     <ul>

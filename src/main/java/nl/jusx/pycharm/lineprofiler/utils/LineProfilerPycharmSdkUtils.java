@@ -13,16 +13,20 @@ import com.jetbrains.python.packaging.PyPackageManagers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LineProfilerPycharmSdkUtils {
     private static final Logger logger = Logger.getInstance(LineProfilerPycharmSdkUtils.class.getName());
+    private static final Pattern versionPattern = Pattern.compile("([0-9]+)\\.([0-9]+)\\.([0-9]+)");
 
     /**
      * Checks whether a python sdk has line-profiler-pycharm installed
      * @param sdk sdk to check
-     * @return boolean indicating whether line-profiler-pycharm is installed
+     * @return the line-profiler-pycharm package
      */
-    public static boolean hasLineProfilerPycharmInstalled(Project project, Sdk sdk) {
+    public static PyPackage hasLineProfilerPycharmInstalled(Project project, Sdk sdk) {
         PyPackageManager ppm = PyPackageManagers.getInstance().forSdk(sdk);
         var ref = new Object() {
             List<PyPackage> installedPackages = new ArrayList<>();
@@ -41,10 +45,10 @@ public class LineProfilerPycharmSdkUtils {
 
         for (PyPackage p : ref.installedPackages) {
             if (p.getName().equals("line-profiler-pycharm")) {
-                return true;
+                return p;
             }
         }
-        return false;
+        return null;
     }
 
     /**
@@ -65,7 +69,7 @@ public class LineProfilerPycharmSdkUtils {
             ProgressManagerImpl.getInstance().runProcessWithProgressSynchronously(
                 () -> {
                     try {
-                        ppm.install("line-profiler-pycharm");
+                        ppm.install("line-profiler-pycharm==1.1.0");
                     } catch (ExecutionException e) {
                         ref.success = false;
                         logger.error("Error when installing line-profiler-pycharm to environment " + sdk, e);
@@ -80,6 +84,23 @@ public class LineProfilerPycharmSdkUtils {
         }
     }
 
+    private static boolean wrapRequestAndDoInstallation(Project project, Sdk sdk, String explanation) {
+        boolean installed = requestAndDoInstallation(
+                project,
+                sdk,
+                explanation
+        );
+        if (!installed) {
+            NotificationGroupManager.getInstance().getNotificationGroup("Line Profiler Notifications")
+                    .createNotification(
+                            "Package 'line-profiler-pycharm' was not installed to " + sdk,
+                            NotificationType.WARNING)
+                    .notify(project);
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Ensures the installation of `line-profiler-pycharm` in a python interpreter
      *
@@ -92,25 +113,33 @@ public class LineProfilerPycharmSdkUtils {
      */
     public static boolean ensureLineProfilerPycharmPackageInstalled(Project project, Sdk sdk) {
         // Check whether lineprofiler is installed
-        boolean installed;
+        PyPackage p = hasLineProfilerPycharmInstalled(project, sdk);
 
-        installed = hasLineProfilerPycharmInstalled(project, sdk);
-
-        if (!installed) {
-            installed = requestAndDoInstallation(
-                    project,
-                    sdk,
-                    "Package 'line-profiler-pycharm' is not installed in python interpreter."
-            );
-            if (!installed) {
-                NotificationGroupManager.getInstance().getNotificationGroup("Line Profiler Notifications")
-                    .createNotification(
-                            "Package 'line-profiler-pycharm' was not installed to " + sdk,
-                            NotificationType.WARNING)
-                    .notify(project);
-                return false;
-            }
+        if (Objects.isNull(p)) {
+            return wrapRequestAndDoInstallation(project, sdk,
+                    "Package 'line-profiler-pycharm' is not installed in python interpreter.");
+        } else if (!versionIsGreaterThanOrEqualTo(p.getVersion(), 1, 1, 0)) {
+            return wrapRequestAndDoInstallation(project, sdk,
+                    "A newer version of python-package 'line-profiler-pycharm' is available " +
+                            "and should be installed to your python environment.");
         }
         return true;
+    }
+
+    private static boolean versionIsGreaterThanOrEqualTo(String version,
+                                                         int minMajor, int minMinor, int minHotfix)
+            throws IllegalArgumentException {
+        Matcher m = versionPattern.matcher(version);
+        if (!m.matches()) {
+            throw new IllegalArgumentException("Could not parse version " + version);
+        }
+        int major = Integer.parseInt(m.group(1));
+        int minor = Integer.parseInt(m.group(2));
+        int hotfix = Integer.parseInt(m.group(3));
+        if (major > minMajor) {
+            return true;
+        } else if (major == minMajor && minor > minMinor) {
+            return true;
+        } else return major == minMajor && minor == minMinor && hotfix >= minHotfix;
     }
 }
