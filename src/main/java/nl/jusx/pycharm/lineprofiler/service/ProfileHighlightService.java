@@ -5,6 +5,7 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.DefaultLineMarkerRenderer;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
@@ -22,6 +23,7 @@ import nl.jusx.pycharm.lineprofiler.render.LineProfileInlayRenderer;
 import nl.jusx.pycharm.lineprofiler.render.TableAlignment;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -305,6 +307,9 @@ public final class ProfileHighlightService {
 
     private RangeHighlighter loadLineProfile(Editor editor, LineProfile lineProfile, float timeDenominator) {
         ColorMapService colorMapService = ServiceManager.getService(ColorMapService.class);
+        TextAttributesKey timeColorAttributes =
+                colorMapService.getTimeFractionTextAttributesKey(lineProfile, timeDenominator);
+        Color timeColor = editor.getColorsScheme().getAttributes(timeColorAttributes).getBackgroundColor();
 
         RangeHighlighter hl = editor.getMarkupModel()
                 .addLineHighlighter(
@@ -313,8 +318,13 @@ public final class ProfileHighlightService {
                         HighlighterLayer.SELECTION
                 );
 
+        // Set colors in gutter
         hl.setLineMarkerRenderer(new DefaultLineMarkerRenderer(
-                colorMapService.getTimeFractionTextAttributesKey(lineProfile, timeDenominator), GUTTER_COLOR_THICKNESS));
+                timeColorAttributes, GUTTER_COLOR_THICKNESS));
+        // Set colors in scrollbar
+        hl.setErrorStripeMarkColor(timeColor);
+        hl.setErrorStripeTooltip(null);
+        hl.setThinErrorStripeMark(true);
         return hl;
     }
 }

@@ -21,7 +21,7 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2020.3'
+    version '2021.1'
     type 'PC'
     plugins = ['python-ce']
     runPluginVerifier {
@@ -32,6 +32,11 @@ patchPluginXml {
     sinceBuild '203'
     untilBuild '211.*'
     changeNotes """
+    <h2>Unreleased</h2>
+    <h3>Added</h3>
+    <ul>
+    <li>Profile result colors are also visible as scrollbar error stripes</li>
+    </ul>
     <h2>1.1.0 - 2021-04-14</h2>
     <h3>Changed</h3>
     <ul>
