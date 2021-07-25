@@ -34,8 +34,28 @@ public class Profile {
         return functionProfiles;
     }
 
-    public float getUnit() {
-        return unit;
+    public String getUnitLong() {
+        if (Float.valueOf(unit).equals(0.000001f)) {
+            return "µs (microseconds)";
+        } else if (Float.valueOf(unit).equals(0.001f)) {
+            return "ms (milliseconds)";
+        } else if (Float.valueOf(unit).equals(1f)) {
+            return "s (seconds)";
+        } else {
+            return String.format("%.6f s", unit);
+        }
+    }
+
+    public String getUnitShort() {
+        if (Float.valueOf(unit).equals(0.000001f)) {
+            return "µs";
+        } else if (Float.valueOf(unit).equals(0.001f)) {
+            return "ms";
+        } else if (Float.valueOf(unit).equals(1f)) {
+            return "s";
+        } else {
+            return "";
+        }
     }
 
     public float getTotalTime() {
