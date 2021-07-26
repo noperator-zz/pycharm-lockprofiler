@@ -67,9 +67,9 @@ public class FunctionProfileInlayRenderer implements EditorCustomElementRenderer
         currentX = tableAlignment.align(currentX, "timeInFunction");
 
         g.drawString(
-                String.format("%.0f [%.6f s]",
+                String.format("%.0f %s",
                         functionProfile.getTotalTime(),
-                        profile.getUnit()),
+                        profile.getUnitLong()),
                 currentX,
                 p.y + editor.getAscent());
     }
@@ -141,8 +141,11 @@ public class FunctionProfileInlayRenderer implements EditorCustomElementRenderer
         Point tableHeaderAnchor = targetRegion.getLocation();
         g.drawString(
                 String.format(
-                        "%6s%15s%15s%15s",
-                        "% Time", "Hits", "Time", "Time / Hit"),
+                        "%6s%15s%15s%17s",
+                        "% Time",
+                        "Hits",
+                        String.format("Time [%s]", profile.getUnitShort()),
+                        String.format("Time / Hit [%s]", profile.getUnitShort())),
                 tableAlignment.getX(),
                 tableHeaderAnchor.y + 2 * editor.getLineHeight() + editor.getAscent());
     }

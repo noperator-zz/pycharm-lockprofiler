@@ -45,8 +45,8 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
         FontMetrics metrics = getFontMetrics(inlay.getEditor());
 
         return RESULT_TABLE_STRING_MARGIN_BLOCKS * margin +
-                // 51 ' ' because of the results table string format (6 + 15 + 15 + 15)
-                metrics.charWidth(' ') * 51;
+                // 53 ' ' because of the results table string format (6 + 15 + 15 + 17)
+                metrics.charWidth(' ') * 53;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
 
     private String getResultTableString() {
 
-        return String.format("%6.1f%15d%15.0f%15.1f",
+        return String.format("%6.1f%15d%15.0f%17.1f",
                 lineProfile.getTimeFraction(timeDenominator) * 100,
                 lineProfile.getHits(),
                 lineProfile.getTime(),
