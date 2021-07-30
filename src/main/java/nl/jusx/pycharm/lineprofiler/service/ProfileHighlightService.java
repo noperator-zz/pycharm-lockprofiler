@@ -1,8 +1,8 @@
 package nl.jusx.pycharm.lineprofiler.service;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -306,7 +306,7 @@ public final class ProfileHighlightService {
     }
 
     private RangeHighlighter loadLineProfile(Editor editor, LineProfile lineProfile, float timeDenominator) {
-        ColorMapService colorMapService = ServiceManager.getService(ColorMapService.class);
+        ColorMapService colorMapService = ApplicationManager.getApplication().getService(ColorMapService.class);
         TextAttributesKey timeColorAttributes =
                 colorMapService.getTimeFractionTextAttributesKey(lineProfile, timeDenominator);
         Color timeColor = editor.getColorsScheme().getAttributes(timeColorAttributes).getBackgroundColor();
