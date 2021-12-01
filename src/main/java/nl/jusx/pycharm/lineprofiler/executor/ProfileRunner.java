@@ -51,7 +51,7 @@ public class ProfileRunner extends PythonRunner {
      *  PC_LINE_PROFILER_STATS_FILENAME
      */
     @Override
-    protected @NotNull Promise<@Nullable RunContentDescriptor> execute(@NotNull ExecutionEnvironment env, @NotNull RunProfileState state) {
+    protected @NotNull Promise<RunContentDescriptor> execute(@NotNull ExecutionEnvironment env, @NotNull RunProfileState state) {
         ProfileHighlightService profileHighlightService = env.getProject().getService(ProfileHighlightService.class);
         ApplicationManager.getApplication().invokeLater(profileHighlightService::disposeAllVisualizations);
 
@@ -108,18 +108,16 @@ public class ProfileRunner extends PythonRunner {
         });
 
         // Add listener to process completion that triggers profile visualization
-        promise.onSuccess(runContentDescriptor -> {
-            ApplicationManager.getApplication().executeOnPooledThread(() -> {
-                ProcessHandler ph = runContentDescriptor.getProcessHandler();
-                if (ph == null) {
-                    logger.error("Could not get processhandler after starting Line Profile run");
-                    return;
-                }
-                if (ph.waitFor()) {
-                    triggerPclprofVisualization(env.getProject(), pclprofPath);
-                }
-            });
-        });
+        promise.onSuccess(runContentDescriptor -> ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            ProcessHandler ph = runContentDescriptor.getProcessHandler();
+            if (ph == null) {
+                logger.error("Could not get processhandler after starting Line Profile run");
+                return;
+            }
+            if (ph.waitFor()) {
+                triggerPclprofVisualization(env.getProject(), pclprofPath);
+            }
+        }));
 
         return promise;
     }

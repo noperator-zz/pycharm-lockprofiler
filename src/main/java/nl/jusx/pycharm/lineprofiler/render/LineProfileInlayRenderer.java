@@ -1,6 +1,6 @@
 package nl.jusx.pycharm.lineprofiler.render;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorCustomElementRenderer;
 import com.intellij.openapi.editor.Inlay;
@@ -78,7 +78,7 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
      * @param renderOrigin anchor for results rendering
      */
     private void paintColorbar(@NotNull Editor editor, @NotNull Graphics g, @NotNull Point renderAnchor) {
-        ColorMapService colorMapService = ServiceManager.getService(ColorMapService.class);
+        ColorMapService colorMapService = ApplicationManager.getApplication().getService(ColorMapService.class);
         TextAttributesKey key = colorMapService.getTimeFractionTextAttributesKey(lineProfile, timeDenominator);
 
         Color color = EditorColorsManager.getInstance().getGlobalScheme().getAttributes(key).getBackgroundColor();
