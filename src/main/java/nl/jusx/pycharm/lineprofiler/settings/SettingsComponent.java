@@ -1,8 +1,10 @@
 package nl.jusx.pycharm.lineprofiler.settings;
 
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.FormBuilder;
+import nl.jusx.pycharm.lineprofiler.service.ColorMapOption;
 
 import javax.swing.*;
 
@@ -16,9 +18,12 @@ public class SettingsComponent {
     private final JPanel myMainPanel;
 
     private final JBIntSpinner myMaxTableAlignment = new JBIntSpinner(120, 0, 300);
+    private final ComboBox<ColorMapOption> myColorMap = new ComboBox<>(ColorMapOption.values());
+
 
     public SettingsComponent() {
         myMainPanel = FormBuilder.createFormBuilder()
+                .addLabeledComponent(new JBLabel("Colormap: "), myColorMap, 1, false)
                 .addLabeledComponent(new JBLabel("Max table alignment at column: "), myMaxTableAlignment, 1, false)
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
@@ -29,7 +34,15 @@ public class SettingsComponent {
     }
 
     public JComponent getPreferredFocusedComponent() {
-        return myMaxTableAlignment;
+        return myColorMap;
+    }
+
+    public void setColorMap(ColorMapOption colorMap) {
+        myColorMap.setItem(colorMap);
+    }
+
+    public ColorMapOption getColorMap() {
+        return myColorMap.getItem();
     }
 
     public void setMaxTableAlignment(int maxTableAlignment) {

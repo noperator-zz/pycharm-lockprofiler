@@ -43,18 +43,21 @@ public class SettingsConfigurable implements Configurable {
     public boolean isModified() {
         SettingsState settings = SettingsState.getInstance();
 
-        return mySettingsComponent.getMaxTableAlignment() != settings.getTableAlignmentMaxColumns();
+        return mySettingsComponent.getColorMap() != settings.getColorMap() ||
+                mySettingsComponent.getMaxTableAlignment() != settings.getTableAlignmentMaxColumns();
     }
 
     @Override
     public void apply() {
         SettingsState settings = SettingsState.getInstance();
+        settings.setColorMap(mySettingsComponent.getColorMap());
         settings.setTableAlignmentMaxColumns(mySettingsComponent.getMaxTableAlignment());
     }
 
     @Override
     public void reset() {
         SettingsState settings = SettingsState.getInstance();
+        mySettingsComponent.setColorMap(settings.getColorMap());
         mySettingsComponent.setMaxTableAlignment(settings.getTableAlignmentMaxColumns());
     }
 

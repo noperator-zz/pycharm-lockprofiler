@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.markup.TextAttributes;
 import jViridis.ColorMap;
 import nl.jusx.pycharm.lineprofiler.profile.FunctionProfile;
 import nl.jusx.pycharm.lineprofiler.profile.Profile;
+import nl.jusx.pycharm.lineprofiler.settings.SettingsState;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -110,7 +111,7 @@ public class FunctionProfileInlayRenderer implements EditorCustomElementRenderer
     private void paintColormap(Graphics g, int x, int y, int width, int height) {
         Graphics2D g2 = (Graphics2D) g;
 
-        ColorMap cm = ColorMap.getInstance(ColorMap.VIRIDIS);
+        ColorMap cm = ColorMap.getInstance(SettingsState.getInstance().getColorMap().getIdentifier());
         Color startColor, endColor;
 
         startColor = cm.getColor(0f);
