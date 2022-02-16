@@ -5,8 +5,8 @@ public class ProfileSchema {
     static class Function {
         static class Line {
             int lineNo;
-            int hits;
-            int time;
+            long hits;
+            long time;
 
         }
 

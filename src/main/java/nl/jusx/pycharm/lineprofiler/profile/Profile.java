@@ -18,7 +18,7 @@ public class Profile {
 
     List<FunctionProfile> functionProfiles = new ArrayList<>();
     private final float unit;
-    private float totalTime;
+    private long totalTime;
 
     private Profile(ProfileSchema schema, @Nullable String rootDirectory) {
         unit = schema.unit;
@@ -58,7 +58,7 @@ public class Profile {
         }
     }
 
-    public float getTotalTime() {
+    public long getTotalTime() {
         return totalTime;
     }
 

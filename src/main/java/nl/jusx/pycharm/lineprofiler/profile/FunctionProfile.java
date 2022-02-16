@@ -14,8 +14,8 @@ public class FunctionProfile implements LineProvider {
     int lineNo;
     String functionName;
 
-    float totalTime;
-    float maxLineTime;
+    long totalTime;
+    long maxLineTime;
 
     FunctionProfile(ProfileSchema.Function fnSchema, @Nullable String rootDirectory) {
         file = fnSchema.file;
@@ -51,11 +51,11 @@ public class FunctionProfile implements LineProvider {
         return functionName;
     }
 
-    public float getTotalTime() {
+    public long getTotalTime() {
         return totalTime;
     }
 
-    public float getMaxLineTime() {
+    public long getMaxLineTime() {
         return maxLineTime;
     }
 

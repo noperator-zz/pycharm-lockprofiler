@@ -2,8 +2,8 @@ package nl.jusx.pycharm.lineprofiler.profile;
 
 public class LineProfile implements LineProvider {
     private final int lineNo;
-    float time;
-    int hits;
+    long time;
+    long hits;
 
     LineProfile(ProfileSchema.Function.Line lineSchema) {
         lineNo = lineSchema.lineNo;
@@ -15,15 +15,15 @@ public class LineProfile implements LineProvider {
         return lineNo - 1;
     }
 
-    public float getTime() {
+    public long getTime() {
         return time;
     }
 
-    public float getTimeFraction(float timeDenominator) {
-        return time / timeDenominator;
+    public float getTimeFraction(long timeDenominator) {
+        return time / (float) timeDenominator;
     }
 
-    public int getHits() {
+    public long getHits() {
         return hits;
     }
 }

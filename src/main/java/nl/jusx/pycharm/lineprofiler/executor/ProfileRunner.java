@@ -18,7 +18,6 @@ import nl.jusx.pycharm.lineprofiler.service.ProfileHighlightService;
 import nl.jusx.pycharm.lineprofiler.service.TimeFractionCalculation;
 import nl.jusx.pycharm.lineprofiler.utils.LineProfilerPycharmSdkUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.concurrency.Promise;
 
 import java.io.IOException;

@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import nl.jusx.pycharm.lineprofiler.profile.LineProfile;
 import nl.jusx.pycharm.lineprofiler.service.ColorMapService;
+import nl.jusx.pycharm.lineprofiler.settings.SettingsState;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -22,16 +23,15 @@ import static nl.jusx.pycharm.lineprofiler.render.InlayRendererUtils.*;
  * Inspired by {@link com.intellij.xdebugger.impl.inline.InlineDebugRenderer}
  */
 public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
-    private static final int MAX_TABLE_ALIGNMENT_IN_CHARS = 75;
     private static final int RESULT_TABLE_STRING_MARGIN_BLOCKS = 3;
 
     private final LineProfile lineProfile;
-    private final float timeDenominator;
+    private final long timeDenominator;
     private final TableAlignment tableAlignment;
     private final int margin;
 
     public LineProfileInlayRenderer(LineProfile lineProfile,
-                                    float timeDenominator,
+                                    long timeDenominator,
                                     TableAlignment tableAlignment,
                                     int margin) {
         this.lineProfile = lineProfile;
@@ -58,7 +58,7 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
     private void paintTableAligned(@NotNull Editor editor, @NotNull Graphics g, @NotNull Point renderAnchor) {
         // align table
         renderAnchor.x += 3 * margin;
-        if (renderAnchor.x < getFontMetrics(editor).charWidth(' ') * MAX_TABLE_ALIGNMENT_IN_CHARS) {
+        if (renderAnchor.x < getFontMetrics(editor).charWidth(' ') * SettingsState.getInstance().getTableAlignmentMaxColumns()) {
             renderAnchor.x = tableAlignment.align(renderAnchor.x, String.valueOf(lineProfile.getLineNrFromZero()));
         }
 
@@ -103,10 +103,10 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
 
     private String getResultTableString() {
 
-        return String.format("%6.1f%15d%15.0f%17.1f",
+        return String.format("%6.1f%15d%15d%17.1f",
                 lineProfile.getTimeFraction(timeDenominator) * 100,
                 lineProfile.getHits(),
                 lineProfile.getTime(),
-                lineProfile.getTime() / lineProfile.getHits());
+                (float) lineProfile.getTime() / lineProfile.getHits());
     }
 }

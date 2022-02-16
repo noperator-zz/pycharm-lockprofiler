@@ -248,7 +248,7 @@ public final class ProfileHighlightService {
             return;
         }
 
-        float timeDenominator = 0;
+        long timeDenominator = 0;
         if (timeFractionCalculation == TimeFractionCalculation.FUNCTION_TOTAL) {
             timeDenominator = fProfile.getTotalTime();
         } else if (timeFractionCalculation == TimeFractionCalculation.FUNCTION_MAX_LINE_TIME) {
@@ -264,7 +264,7 @@ public final class ProfileHighlightService {
 
     private void setFunctionProfileVisualizations(Editor editor,
                                                   FunctionProfile fProfile,
-                                                  VirtualFile file, float timeDenominator) {
+                                                  VirtualFile file, long timeDenominator) {
         // We keep an alignment object that is passed to each render
         // With this alignment object multiple renderers can agree upon the table x offset for results table
         TableAlignment desiredTableAlignment = new TableAlignment();
@@ -305,7 +305,7 @@ public final class ProfileHighlightService {
         }
     }
 
-    private RangeHighlighter loadLineProfile(Editor editor, LineProfile lineProfile, float timeDenominator) {
+    private RangeHighlighter loadLineProfile(Editor editor, LineProfile lineProfile, long timeDenominator) {
         ColorMapService colorMapService = ApplicationManager.getApplication().getService(ColorMapService.class);
         TextAttributesKey timeColorAttributes =
                 colorMapService.getTimeFractionTextAttributesKey(lineProfile, timeDenominator);

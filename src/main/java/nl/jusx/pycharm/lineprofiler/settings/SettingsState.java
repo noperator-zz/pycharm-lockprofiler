@@ -5,6 +5,7 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import nl.jusx.pycharm.lineprofiler.service.ColorMapOption;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,12 +22,27 @@ import org.jetbrains.annotations.Nullable;
         storages = {@Storage("LineprofilerPlugin.xml")}
 )
 public class SettingsState implements PersistentStateComponent<SettingsState> {
-
-//    public String userId = "John Q. Public";
-//    public TimeFractionCalculation defaultTimeFractionCalculation = TimeFractionCalculation.FUNCTION_TOTAL;
+    private int tableAlignmentMaxColumns = 120;
+    private ColorMapOption colorMap = ColorMapOption.VIRIDIS;
 
     public static SettingsState getInstance() {
         return ApplicationManager.getApplication().getService(SettingsState.class);
+    }
+
+    public ColorMapOption getColorMap() {
+        return colorMap;
+    }
+
+    public void setColorMap(ColorMapOption colorMap) {
+        this.colorMap = colorMap;
+    }
+
+    public int getTableAlignmentMaxColumns() {
+        return tableAlignmentMaxColumns;
+    }
+
+    public void setTableAlignmentMaxColumns(int tableAlignmentMaxColumns) {
+        this.tableAlignmentMaxColumns = tableAlignmentMaxColumns;
     }
 
     @Nullable
