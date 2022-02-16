@@ -39,7 +39,7 @@ public final class ColorMapService {
         }
     }
 
-    public TextAttributesKey getTimeFractionTextAttributesKey(LineProfile line, float timeDenominator) {
+    public TextAttributesKey getTimeFractionTextAttributesKey(LineProfile line, long timeDenominator) {
         float timeFraction = line.getTimeFraction(timeDenominator);
 
         int colorIndex = (int) (timeFraction * (float) (AMOUNT_OF_COLORS - 1));

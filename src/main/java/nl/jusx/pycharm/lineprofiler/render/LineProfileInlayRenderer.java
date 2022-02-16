@@ -26,12 +26,12 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
     private static final int RESULT_TABLE_STRING_MARGIN_BLOCKS = 3;
 
     private final LineProfile lineProfile;
-    private final float timeDenominator;
+    private final long timeDenominator;
     private final TableAlignment tableAlignment;
     private final int margin;
 
     public LineProfileInlayRenderer(LineProfile lineProfile,
-                                    float timeDenominator,
+                                    long timeDenominator,
                                     TableAlignment tableAlignment,
                                     int margin) {
         this.lineProfile = lineProfile;
@@ -103,10 +103,10 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
 
     private String getResultTableString() {
 
-        return String.format("%6.1f%15d%15.0f%17.1f",
+        return String.format("%6.1f%15d%15d%17.1f",
                 lineProfile.getTimeFraction(timeDenominator) * 100,
                 lineProfile.getHits(),
                 lineProfile.getTime(),
-                lineProfile.getTime() / lineProfile.getHits());
+                (float) lineProfile.getTime() / lineProfile.getHits());
     }
 }

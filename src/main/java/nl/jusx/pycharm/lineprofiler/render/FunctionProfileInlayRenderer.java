@@ -67,7 +67,7 @@ public class FunctionProfileInlayRenderer implements EditorCustomElementRenderer
         currentX = tableAlignment.align(currentX, "timeInFunction");
 
         g.drawString(
-                String.format("%.0f %s",
+                String.format("%d %s",
                         functionProfile.getTotalTime(),
                         profile.getUnitLong()),
                 currentX,
