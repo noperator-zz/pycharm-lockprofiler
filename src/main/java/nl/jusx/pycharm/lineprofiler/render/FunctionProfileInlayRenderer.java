@@ -4,9 +4,9 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorCustomElementRenderer;
 import com.intellij.openapi.editor.Inlay;
 import com.intellij.openapi.editor.markup.TextAttributes;
+import jViridis.ColorMap;
 import nl.jusx.pycharm.lineprofiler.profile.FunctionProfile;
 import nl.jusx.pycharm.lineprofiler.profile.Profile;
-import jViridis.ColorMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;

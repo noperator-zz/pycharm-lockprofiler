@@ -5,8 +5,8 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
-import nl.jusx.pycharm.lineprofiler.profile.LineProfile;
 import jViridis.ColorMap;
+import nl.jusx.pycharm.lineprofiler.profile.LineProfile;
 
 
 /**
