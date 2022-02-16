@@ -21,12 +21,18 @@ import org.jetbrains.annotations.Nullable;
         storages = {@Storage("LineprofilerPlugin.xml")}
 )
 public class SettingsState implements PersistentStateComponent<SettingsState> {
-
-//    public String userId = "John Q. Public";
-//    public TimeFractionCalculation defaultTimeFractionCalculation = TimeFractionCalculation.FUNCTION_TOTAL;
+    private int tableAlignmentMaxColumns = 120;
 
     public static SettingsState getInstance() {
         return ApplicationManager.getApplication().getService(SettingsState.class);
+    }
+
+    public int getTableAlignmentMaxColumns() {
+        return tableAlignmentMaxColumns;
+    }
+
+    public void setTableAlignmentMaxColumns(int tableAlignmentMaxColumns) {
+        this.tableAlignmentMaxColumns = tableAlignmentMaxColumns;
     }
 
     @Nullable

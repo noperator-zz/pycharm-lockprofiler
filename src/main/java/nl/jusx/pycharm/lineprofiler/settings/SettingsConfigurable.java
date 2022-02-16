@@ -27,10 +27,10 @@ public class SettingsConfigurable implements Configurable {
         return "Line Profiler";
     }
 
-//    @Override
-//    public JComponent getPreferredFocusedComponent() {
-//        return mySettingsComponent.getPreferredFocusedComponent();
-//    }
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return mySettingsComponent.getPreferredFocusedComponent();
+    }
 
     @Nullable
     @Override
@@ -41,24 +41,21 @@ public class SettingsConfigurable implements Configurable {
 
     @Override
     public boolean isModified() {
-//        SettingsState settings = SettingsState.getInstance();
-//
-//        boolean modified = mySettingsComponent.getDefaultTimeFractionCalculation() != settings.defaultTimeFractionCalculation;
-//
-//        return modified;
-        return false;
+        SettingsState settings = SettingsState.getInstance();
+
+        return mySettingsComponent.getMaxTableAlignment() != settings.getTableAlignmentMaxColumns();
     }
 
     @Override
     public void apply() {
-//        SettingsState settings = SettingsState.getInstance();
-//        settings.defaultTimeFractionCalculation = mySettingsComponent.getDefaultTimeFractionCalculation();
+        SettingsState settings = SettingsState.getInstance();
+        settings.setTableAlignmentMaxColumns(mySettingsComponent.getMaxTableAlignment());
     }
 
     @Override
     public void reset() {
-//        SettingsState settings = SettingsState.getInstance();
-//        mySettingsComponent.setDefaultTimeFractionCalculation(settings.defaultTimeFractionCalculation);
+        SettingsState settings = SettingsState.getInstance();
+        mySettingsComponent.setMaxTableAlignment(settings.getTableAlignmentMaxColumns());
     }
 
     @Override
