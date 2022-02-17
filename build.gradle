@@ -24,17 +24,21 @@ dependencies {
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     version = '2021.3'
-//    version = '213-EAP-SNAPSHOT'
+//    version = '221-EAP-SNAPSHOT'
     type = 'PC'
     plugins = ['python-ce']
     runPluginVerifier {
-        ideVersions = ["PCC-2020.3", "PCC-2021.1"]
+        ideVersions = [
+                "PCC-2020.3",       // First supported release
+                "PCC-2021.3",       // Latest supported release
+                "PCC-221.4165.171"  // Latest supported snapshot
+        ]
     }
 }
 
 patchPluginXml {
     sinceBuild = '203'
-    untilBuild = '213.*'
+    untilBuild = '221.*'
     // See
     // https://lp.jetbrains.com/gradle-intellij-plugin/
     // https://github.com/JetBrains/gradle-changelog-plugin
