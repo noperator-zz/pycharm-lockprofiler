@@ -25,10 +25,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static nl.jusx.pycharm.lineprofiler.render.InlayRendererUtils.getFontMetrics;
 import static nl.jusx.pycharm.lineprofiler.render.InlayRendererUtils.getMargin;
@@ -144,9 +142,9 @@ public final class ProfileHighlightService {
             fileInlays = new ArrayList<>();
         }
 
-        // Keep track of a list of disposed highlighters and inlays
-        List<RangeHighlighter> disposedHighlighters = new ArrayList<>();
-        List<Inlay<?>> disposedInlays = new ArrayList<>();
+        // Keep track of a list highlighters and inlays to dispose
+        Set<RangeHighlighter> toDisposeHighlighters = new HashSet<>();
+        Set<Inlay<?>> toDisposeInlays = new HashSet<>();
 
         // Get all carets that need to be checked for highlight overlap
         CaretModel cm = editor.getCaretModel();
@@ -165,23 +163,24 @@ public final class ProfileHighlightService {
 
                 if (caretStartLine <= rhLine && caretEndLine >= rhLine) {
                     // There is overlap, dispose
-                    highlighter.dispose();
-                    disposedHighlighters.add(highlighter);
+                    toDisposeHighlighters.add(highlighter);
                 }
             });
             fileInlays.forEach(inlay -> {
                 int inlayLine = document.getLineNumber(inlay.getOffset());
                 if (caretStartLine <= inlayLine && caretEndLine >= inlayLine) {
                     // There is overlap, dispose
-                    inlay.dispose();
-                    disposedInlays.add(inlay);
+                    toDisposeInlays.add(inlay);
                 }
             });
         }
 
+        toDisposeHighlighters.forEach(RangeMarker::dispose);
+        toDisposeInlays.forEach(Disposable::dispose);
+
         // Remove reference to all disposed highlighters
-        fileHighlighters.removeAll(disposedHighlighters);
-        fileInlays.removeAll(disposedInlays);
+        fileHighlighters.removeAll(toDisposeHighlighters);
+        fileInlays.removeAll(toDisposeInlays);
 
     }
 

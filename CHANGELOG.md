@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Plugin available for 203 - 221.*
 
+### Fixed
+- Bug that did not allow multi-caret editing when profile results were being visualized
+
 ## [1.5.0] - 2022-02-16
 ### Added
 - More colormaps. Different colormaps can now be selected in the plugin settings.
