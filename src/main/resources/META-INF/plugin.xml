@@ -1,4 +1,5 @@
 <idea-plugin>
+    <idea-version since-build="203" />
     <id>nl.jusx.pycharm.lineprofiler</id>
     <name>Line Profiler</name>
     <vendor email="jhwj.ingels@gmail.com" url="https://gitlab.com/line-profiler-pycharm">Justen Ingels</vendor>
