@@ -44,13 +44,11 @@ public final class ColorMapService {
         loadedColorMaps.add(colorMapOption);
     }
 
-    public TextAttributesKey getTimeFractionTextAttributesKey(LineProfile line, long timeDenominator) {
+    public TextAttributesKey getTimeFractionTextAttributesKey(double timeFraction) {
         ColorMapOption colorMapOption = SettingsState.getInstance().getColorMap();
         if (!loadedColorMaps.contains(colorMapOption)) {
             loadBackgroundColors(colorMapOption);
         }
-
-        float timeFraction = line.getTimeFraction(timeDenominator);
 
         int colorIndex = (int) (timeFraction * (float) (AMOUNT_OF_COLORS - 1));
 

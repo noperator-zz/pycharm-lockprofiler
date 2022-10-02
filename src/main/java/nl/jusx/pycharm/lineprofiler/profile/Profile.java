@@ -1,66 +1,40 @@
 package nl.jusx.pycharm.lineprofiler.profile;
 
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Profile {
     private static final Logger logger = Logger.getInstance(Profile.class.getName());
 
-    List<FunctionProfile> functionProfiles = new ArrayList<>();
-    private final float unit;
-    private long totalTime;
+    private final Map<String, List<FunctionProfile>> fileProfiles = new HashMap<>();
+
+//    private long totalTime;
+
 
     private Profile(ProfileSchema schema, @Nullable String rootDirectory) {
-        unit = schema.unit;
 
         for (ProfileSchema.Function fSchema : schema.profiledFunctions) {
             FunctionProfile fn = new FunctionProfile(fSchema, rootDirectory);
-            functionProfiles.add(fn);
-            totalTime += fn.totalTime;
+            fileProfiles.computeIfAbsent(fn.file, k -> new ArrayList<>()).add(fn);
+//            totalTime += fn.totalTime;
         }
     }
 
-    public List<FunctionProfile> getProfiledFunctions() {
-        return functionProfiles;
+    public Map<String, List<FunctionProfile>> getProfiledFiles() {
+        return fileProfiles;
     }
 
-    public String getUnitLong() {
-        if (Float.valueOf(unit).equals(0.000001f)) {
-            return "µs (microseconds)";
-        } else if (Float.valueOf(unit).equals(0.001f)) {
-            return "ms (milliseconds)";
-        } else if (Float.valueOf(unit).equals(1f)) {
-            return "s (seconds)";
-        } else {
-            return String.format("%.6f s", unit);
-        }
-    }
-
-    public String getUnitShort() {
-        if (Float.valueOf(unit).equals(0.000001f)) {
-            return "µs";
-        } else if (Float.valueOf(unit).equals(0.001f)) {
-            return "ms";
-        } else if (Float.valueOf(unit).equals(1f)) {
-            return "s";
-        } else {
-            return "";
-        }
-    }
-
-    public long getTotalTime() {
-        return totalTime;
-    }
+//    public long getTotalTime() {
+//        return totalTime;
+//    }
 
     /**
      * Loads a .pclprof file into a Profile object
@@ -73,17 +47,10 @@ public class Profile {
      */
     @Nullable
     public static Profile fromPclprof(String profileFile, @Nullable String rootDirectory) {
-        Gson gson = new Gson();
-        JsonReader reader;
-
-        try {
-            reader = new JsonReader(new FileReader(profileFile));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        ProfileSchema data = ProfileSchema.FromFile(profileFile); // contains the whole reviews list
+        if (data == null) {
             return null;
         }
-
-        ProfileSchema data = gson.fromJson(reader, ProfileSchema.class); // contains the whole reviews list
 
         return new Profile(data, rootDirectory);
     }

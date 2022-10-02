@@ -1,8 +1,14 @@
 package nl.jusx.pycharm.lineprofiler.render;
 
 
+import com.intellij.openapi.project.Project;
+import nl.jusx.pycharm.lineprofiler.settings.SettingsState;
+import com.intellij.openapi.editor.Editor;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import static nl.jusx.pycharm.lineprofiler.render.InlayRendererUtils.getFontMetrics;
 
 /**
  * Object that is shared by renderers
@@ -21,12 +27,17 @@ public class TableAlignment {
      * @param key key to which value belongs
      * @return new alignment value (taking into account the just added value)
      */
-    public int align(int withX, String key) {
+    public int align(Editor editor, int withX, String key) {
+        if (withX >= getFontMetrics(editor).charWidth(' ') * SettingsState.getInstance().getTableAlignmentMaxColumns()) {
+            // Don't update alignemts past some maximum.
+            // Any line over the maximum will be misaligned relative to others using the same TableAlignment
+            return withX;
+        }
         alignment.put(key, withX);
         return alignment.values().stream().max(Integer::compare).orElseThrow();
     }
 
-    public int getX() {
-        return alignment.values().stream().max(Integer::compare).orElse(0);
-    }
+//    public int getX() {
+//        return alignment.values().stream().max(Integer::compare).orElse(0);
+//    }
 }

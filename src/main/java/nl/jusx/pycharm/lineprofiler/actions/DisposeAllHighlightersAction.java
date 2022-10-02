@@ -36,6 +36,6 @@ public class DisposeAllHighlightersAction extends AnAction {
             return;
         }
         logger.info("Disposing all highlighters from " + srcFile);
-        profileHighlightService.disposeHighlighters(srcFile);
+        profileHighlightService.disposeVisualizations(srcFile);
     }
 }

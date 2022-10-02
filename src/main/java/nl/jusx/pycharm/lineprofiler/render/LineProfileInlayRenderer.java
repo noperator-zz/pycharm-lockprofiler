@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import nl.jusx.pycharm.lineprofiler.profile.LineProfile;
+import nl.jusx.pycharm.lineprofiler.profile.ProfileSchema;
 import nl.jusx.pycharm.lineprofiler.service.ColorMapService;
 import nl.jusx.pycharm.lineprofiler.settings.SettingsState;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +24,7 @@ import static nl.jusx.pycharm.lineprofiler.render.InlayRendererUtils.*;
  * Inspired by {@link com.intellij.xdebugger.impl.inline.InlineDebugRenderer}
  */
 public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
-    private static final int RESULT_TABLE_STRING_MARGIN_BLOCKS = 3;
+    public static final int RESULT_TABLE_STRING_MARGIN_BLOCKS = 3;
 
     private final LineProfile lineProfile;
     private final long timeDenominator;
@@ -42,6 +43,7 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
 
     @Override
     public int calcWidthInPixels(@NotNull Inlay inlay) {
+        // TODO this doesn't seem to take into account that the inlay may have blank space on the left due to tableAlignment
         FontMetrics metrics = getFontMetrics(inlay.getEditor());
 
         return RESULT_TABLE_STRING_MARGIN_BLOCKS * margin +
@@ -56,30 +58,28 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
     }
 
     private void paintTableAligned(@NotNull Editor editor, @NotNull Graphics g, @NotNull Point renderAnchor) {
-        // align table
-        renderAnchor.x += 3 * margin;
-        if (renderAnchor.x < getFontMetrics(editor).charWidth(' ') * SettingsState.getInstance().getTableAlignmentMaxColumns()) {
-            renderAnchor.x = tableAlignment.align(renderAnchor.x, String.valueOf(lineProfile.getLineNrFromZero()));
-        }
+        // Table begins rendering x margins to the right
+        renderAnchor.x = tableAlignment.align(editor, renderAnchor.x + RESULT_TABLE_STRING_MARGIN_BLOCKS * margin, String.valueOf(lineProfile.getLineNrFromZero()));
 
+        // Color begins rendering 2 margins to the left of that
         Point colorAnchor = renderAnchor.getLocation();
-
         colorAnchor.x -= 2 * margin;
-        paintColorbar(editor, g, colorAnchor);
 
+        paintColorbar(editor, g, colorAnchor);
         paintResultTableString(editor, g, renderAnchor);
     }
 
     /**
      * Paints the color block next to a line, visualizing the timefraction
      * @param editor editor to draw for
-     * @param highlighter highlighter to paint colorbar for, is used to look up the line profile
      * @param g graphic to draw in
-     * @param renderOrigin anchor for results rendering
+     * @param renderAnchor anchor for results rendering
      */
     private void paintColorbar(@NotNull Editor editor, @NotNull Graphics g, @NotNull Point renderAnchor) {
         ColorMapService colorMapService = ApplicationManager.getApplication().getService(ColorMapService.class);
-        TextAttributesKey key = colorMapService.getTimeFractionTextAttributesKey(lineProfile, timeDenominator);
+
+        float timeFraction = lineProfile.getTimeFraction(timeDenominator);
+        TextAttributesKey key = colorMapService.getTimeFractionTextAttributesKey(timeFraction);
 
         Color color = EditorColorsManager.getInstance().getGlobalScheme().getAttributes(key).getBackgroundColor();
 
@@ -103,10 +103,11 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
 
     private String getResultTableString() {
 
-        return String.format("%6.1f%15d%15d%17.1f",
+        return String.format("%6.1f%15d%15s%17s",
                 lineProfile.getTimeFraction(timeDenominator) * 100,
                 lineProfile.getHits(),
-                lineProfile.getTime(),
-                (float) lineProfile.getTime() / lineProfile.getHits());
+                ProfileSchema.formatTime(lineProfile.getTime()),
+                ProfileSchema.formatTime(lineProfile.getTime() / lineProfile.getHits())
+        );
     }
 }

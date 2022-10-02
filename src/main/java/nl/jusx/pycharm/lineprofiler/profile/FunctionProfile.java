@@ -12,6 +12,7 @@ public class FunctionProfile implements LineProvider {
     List<LineProfile> lineProfiles = new ArrayList<>();
     String file;
     int lineNo;
+    int numLines;
     String functionName;
 
     long totalTime;
@@ -29,6 +30,7 @@ public class FunctionProfile implements LineProvider {
         lineNo = fnSchema.lineNo;
         functionName = fnSchema.functionName;
 
+        int lastLine = getLineNrFromZero();
         for (ProfileSchema.Function.Line lineSchema : fnSchema.profiledLines) {
             LineProfile line = new LineProfile(lineSchema);
 
@@ -36,7 +38,10 @@ public class FunctionProfile implements LineProvider {
             totalTime += line.time;
 
             maxLineTime = Math.max(maxLineTime, line.time);
+
+            lastLine = Math.max(lastLine, line.getLineNrFromZero());
         }
+        numLines = lastLine + 1 - getLineNrFromZero();
     }
 
     public List<LineProfile> getProfiledLines() {
@@ -53,6 +58,10 @@ public class FunctionProfile implements LineProvider {
 
     public long getTotalTime() {
         return totalTime;
+    }
+
+    public int getNumLines() {
+        return numLines;
     }
 
     public long getMaxLineTime() {
