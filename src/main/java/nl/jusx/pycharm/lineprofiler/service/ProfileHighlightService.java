@@ -57,7 +57,7 @@ final class FileProfileData {
 @Service
 public final class ProfileHighlightService {
     private static final Logger logger = Logger.getInstance(ProfileHighlightService.class.getName());
-    private static final int GUTTER_COLOR_THICKNESS = 10;
+    private static final int GUTTER_COLOR_THICKNESS = 9;
 
     // Project to which this service belongs
     private final Project myProject;
@@ -143,18 +143,13 @@ public final class ProfileHighlightService {
         VirtualFile file = FileDocumentManager.getInstance().getFile(document);
 
         // Check if there are highlighters and inlays for the current file
-        List<RangeHighlighter> fileHighlighters = fileData.get(file).highlighters;
-        List<Inlay<?>> fileInlays = fileData.get(file).inlays;
-
-        if (fileHighlighters == null && fileInlays == null) {
+        FileProfileData data = fileData.get(file);
+        if (data == null) {
             return;
         }
-        if (fileHighlighters == null) {
-            fileHighlighters = new ArrayList<>();
-        }
-        if (fileInlays == null) {
-            fileInlays = new ArrayList<>();
-        }
+
+        List<RangeHighlighter> fileHighlighters = data.highlighters;
+        List<Inlay<?>> fileInlays = data.inlays;
 
         // Keep track of a list highlighters and inlays to dispose
         Set<RangeHighlighter> toDisposeHighlighters = new HashSet<>();
@@ -331,7 +326,8 @@ public final class ProfileHighlightService {
         TextAttributesKey timeColorAttributes = colorMapService.getTimeFractionTextAttributesKey(timeFraction);
         Color timeColor = editor.getColorsScheme().getAttributes(timeColorAttributes).getBackgroundColor();
 
-        ProfileLineMarkerRenderer renderer = new ProfileLineMarkerRenderer(editor, timeColorAttributes, 8, 0, LineMarkerRendererEx.Position.LEFT);
+        ProfileLineMarkerRenderer renderer = new ProfileLineMarkerRenderer(editor, timeColorAttributes,
+                GUTTER_COLOR_THICKNESS, 0, LineMarkerRendererEx.Position.LEFT);
 
         for (int l = func.getLineNrFromZero(); l < func.getLineNrFromZero() + func.getNumLines(); l++) {
             RangeHighlighter hl = editor.getMarkupModel()
