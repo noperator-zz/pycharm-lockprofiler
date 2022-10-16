@@ -1,6 +1,6 @@
 <idea-plugin>
     <idea-version since-build="203" />
-    <id>nl.jusx.pycharm.lineprofiler</id>
+    <id>nl.jusx.pycharm.lockprofiler</id>
     <name>Line Profiler</name>
     <vendor email="jhwj.ingels@gmail.com" url="https://gitlab.com/line-profiler-pycharm">Justen Ingels</vendor>
 
@@ -58,29 +58,29 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <enterHandlerDelegate implementation="nl.jusx.pycharm.lineprofiler.handlers.MyEnterHandler" />
-        <backspaceHandlerDelegate implementation="nl.jusx.pycharm.lineprofiler.handlers.MyBackspaceHandler" />
-        <typedHandler implementation="nl.jusx.pycharm.lineprofiler.handlers.TypedHandler" />
+        <enterHandlerDelegate implementation="nl.jusx.pycharm.lockprofiler.handlers.MyEnterHandler" />
+        <backspaceHandlerDelegate implementation="nl.jusx.pycharm.lockprofiler.handlers.MyBackspaceHandler" />
+        <typedHandler implementation="nl.jusx.pycharm.lockprofiler.handlers.TypedHandler" />
         <notificationGroup id="Line Profiler Notifications" displayType="BALLOON" />
         <!-- Extensions for settings -->
-        <applicationService serviceImplementation="nl.jusx.pycharm.lineprofiler.settings.SettingsState"/>
-        <projectConfigurable parentId="tools" instance="nl.jusx.pycharm.lineprofiler.settings.SettingsConfigurable"
-                             id="nl.jusx.pycharm.lineprofiler.settings.SettingsConfigurable"
+        <applicationService serviceImplementation="nl.jusx.pycharm.lockprofiler.settings.SettingsState"/>
+        <projectConfigurable parentId="tools" instance="nl.jusx.pycharm.lockprofiler.settings.SettingsConfigurable"
+                             id="nl.jusx.pycharm.lockprofiler.settings.SettingsConfigurable"
                              displayName="Line Profiler"
                              nonDefaultProject="false"/>
         <!-- Extension for Line Profile Executor -->
-        <executor implementation="nl.jusx.pycharm.lineprofiler.executor.ProfileExecutor" />
-        <programRunner implementation="nl.jusx.pycharm.lineprofiler.executor.ProfileRunner" />
+        <executor implementation="nl.jusx.pycharm.lockprofiler.executor.ProfileExecutor" />
+        <programRunner implementation="nl.jusx.pycharm.lockprofiler.executor.ProfileRunner" />
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
         <!-- Group for project menu -->
-        <group id="nl.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroupProject" text="Line Profile Visualization" popup="false"
-               class="nl.jusx.pycharm.lineprofiler.actions.VisualiseProfilerActionGroup" >
+        <group id="nl.jusx.pycharm.lockprofiler.actions.VisualiseProfilerActionGroupProject" text="Line Profile Visualization" popup="false"
+               class="nl.jusx.pycharm.lockprofiler.actions.VisualiseProfilerActionGroup" >
             <separator/>
-            <action id="nl.jusx.pycharm.lineprofiler.actions.VisualizeFunctionTime"
-                    class="nl.jusx.pycharm.lineprofiler.actions.VisualiseLineProfilerAction" text="Visualize Profile"
+            <action id="nl.jusx.pycharm.lockprofiler.actions.VisualizeFunctionTime"
+                    class="nl.jusx.pycharm.lockprofiler.actions.VisualiseLineProfilerAction" text="Visualize Profile"
                     description="Visualizes profile with Line Profiler plugin">
             </action>
             <separator/>
@@ -89,11 +89,11 @@
 
 
         <!-- Group for editor menu -->
-        <group id="nl.jusx.pycharm.lineprofiler.LineProfileVisualization" text="Line Profile Visualization" popup="false"
+        <group id="nl.jusx.pycharm.lockprofiler.LineProfileVisualization" text="Line Profile Visualization" popup="false"
                class="com.intellij.openapi.actionSystem.DefaultActionGroup" >
             <separator/>
-            <action id="nl.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction"
-                    class="nl.jusx.pycharm.lineprofiler.actions.DisposeAllHighlightersAction" text="Dispose Line Profiler Visualization"
+            <action id="nl.jusx.pycharm.lockprofiler.actions.DisposeAllHighlightersAction"
+                    class="nl.jusx.pycharm.lockprofiler.actions.DisposeAllHighlightersAction" text="Dispose Line Profiler Visualization"
                     description="Dispose visualization from Line Profiler plugin">
             </action>
             <separator/>
