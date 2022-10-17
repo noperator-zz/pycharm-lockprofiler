@@ -10,6 +10,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.jetbrains.python.run.AbstractPythonRunConfiguration;
 import com.jetbrains.python.run.PythonRunConfiguration;
 import com.jetbrains.python.run.PythonRunner;
@@ -141,7 +142,6 @@ public class ProfileRunner extends PythonRunner {
 
         ApplicationManager.getApplication().invokeLater(() -> {
             profileHighlightService.setProfile(profile);
-            profileHighlightService.visualizeProfile(TimeFractionCalculation.FUNCTION_TOTAL);
         });
     }
 }

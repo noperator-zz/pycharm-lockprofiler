@@ -10,13 +10,13 @@ import java.util.Map;
 
 public class Profile {
     private static final Logger logger = Logger.getInstance(Profile.class.getName());
-    private final ProfileSchema schema;
+    public final ProfileSchema schema;
 
     private Profile(ProfileSchema schema, @Nullable String rootDirectory) {
         this.schema = schema;
     }
 
-    public Map<String, Map<Integer, Map<Integer, ProfileSchema.LockStats>>> getProfiledFiles() {
+    public Map<String, Map<Integer, Map<Long, ProfileSchema.LockStats>>> getProfiledFiles() {
         return schema.file_stats;
     }
 

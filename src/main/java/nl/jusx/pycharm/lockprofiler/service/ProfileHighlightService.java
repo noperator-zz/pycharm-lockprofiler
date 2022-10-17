@@ -1,13 +1,9 @@
 package nl.jusx.pycharm.lockprofiler.service;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.*;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.markup.HighlighterLayer;
-import com.intellij.openapi.editor.markup.LineMarkerRendererEx;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -15,16 +11,15 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import nl.jusx.pycharm.lockprofiler.profile.FunctionProfile;
-import nl.jusx.pycharm.lockprofiler.profile.LineProfile;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentFactory;
 import nl.jusx.pycharm.lockprofiler.profile.Profile;
-import nl.jusx.pycharm.lockprofiler.render.FunctionProfileInlayRenderer;
-import nl.jusx.pycharm.lockprofiler.render.LineProfileInlayRenderer;
-import nl.jusx.pycharm.lockprofiler.render.ProfileLineMarkerRenderer;
-import nl.jusx.pycharm.lockprofiler.render.TableAlignment;
+import nl.jusx.pycharm.lockprofiler.profile.ProfileSchema;
+import nl.jusx.pycharm.lockprofiler.render.*;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
@@ -40,7 +35,6 @@ final class FileProfileData {
     // We keep an alignment object that is passed to each render
     // With this alignment object multiple renderers can agree upon the table x offset for results table
     public TimeFractionCalculation fileTFC = TimeFractionCalculation.FUNCTION_TOTAL;
-    public long fileTime = 0;
 
     FileProfileData(Editor editor) {
         this.editor = editor;
@@ -63,9 +57,21 @@ public final class ProfileHighlightService {
 
     private final Map<VirtualFile, FileProfileData> fileData = new HashMap<>();
     private @Nullable Profile currentProfile;
+    private LockProfilerToolWindow lockProfilerToolWindow;
 
     public ProfileHighlightService(Project project) {
         myProject = project;
+
+        ToolWindow toolWindow = ToolWindowManager.getInstance(myProject).getToolWindow("Lock Profiler");
+        String contentName = "Lock Profiler";//profileFile.getName();
+
+        if (toolWindow != null) {
+            toolWindow.setToHideOnEmptyContent(true);
+            lockProfilerToolWindow = new LockProfilerToolWindow(toolWindow, project);
+            ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+            Content content = contentFactory.createContent(lockProfilerToolWindow.getContent(), contentName, false);
+            toolWindow.getContentManager().addContent(content);
+        }
     }
 
     /**
@@ -202,6 +208,15 @@ public final class ProfileHighlightService {
     public void setProfile(Profile profile) {
         disposeAllVisualizations();
         currentProfile = profile;
+        visualizeProfile(TimeFractionCalculation.FUNCTION_TOTAL);
+
+        lockProfilerToolWindow.update(profile);
+        ToolWindow toolWindow = ToolWindowManager.getInstance(myProject).getToolWindow("Lock Profiler");
+
+        if (toolWindow != null) {
+            toolWindow.show();
+            toolWindow.activate(null, true);
+        }
     }
 
     /**
@@ -218,7 +233,7 @@ public final class ProfileHighlightService {
         // Dispose all existing highlighters because we will load new profile results
         disposeAllVisualizations();
 
-        currentProfile.getProfiledFiles().forEach((fileName, fileProfile) -> {
+        currentProfile.getProfiledFiles().forEach((fileName, file_stats) -> {
             VirtualFileManager vfm = VirtualFileManager.getInstance();
             VirtualFile file = vfm.findFileByNioPath(Paths.get(fileName));
             if (file == null) {
@@ -236,123 +251,85 @@ public final class ProfileHighlightService {
             FileProfileData data = new FileProfileData(fileEditor);
             fileData.put(file, data);
 
-            // Compute total time spend in the file for the per-function color bar
-            long fileTotal = 0;
-            for (FunctionProfile fProfile : fileProfile) {
-                fileTotal += fProfile.getTotalTime();
-            }
+//            System.out.print("start\n");
+            loadFileProfile(data, file_stats, timeFractionCalculation);
 
-            data.fileTime = fileTotal;
-
-            System.out.print("start\n");
-            for (FunctionProfile fProfile : fileProfile) {
-                loadFunctionProfile(data, fProfile, timeFractionCalculation);
-            }
-            // TODO force redraw editor to to redraw inlays with the latest tableAlignment position.
-            //  Or if that's not possible, do ao first pass to compute the correct tableAlignment before creating the inlays
-            System.out.print("repaint\n");
-            System.out.printf("%d\n", data.desiredTableAlignment.getX());
-            data.inlays.forEach(Inlay::repaint);
-            System.out.printf("%d\n", data.desiredTableAlignment.getX());
-            data.inlays.forEach(Inlay::repaint);
-            System.out.printf("%d\n", data.desiredTableAlignment.getX());
-            System.out.print("repaint done\n");
+//            // TODO force redraw editor to to redraw inlays with the latest tableAlignment position.
+//            //  Or if that's not possible, do ao first pass to compute the correct tableAlignment before creating the inlays
+//            System.out.print("repaint\n");
+//            System.out.printf("%d\n", data.desiredTableAlignment.getX());
+//            data.inlays.forEach(Inlay::repaint);
+//            System.out.printf("%d\n", data.desiredTableAlignment.getX());
+//            data.inlays.forEach(Inlay::repaint);
+//            System.out.printf("%d\n", data.desiredTableAlignment.getX());
+//            System.out.print("repaint done\n");
         });
 
     }
 
-    private void loadFunctionProfile(FileProfileData data, FunctionProfile fProfile,
-                                     TimeFractionCalculation timeFractionCalculation) {
-        if (currentProfile == null) {
-            logger.error("Could not find a current profile, so could not load function profile");
-            return;
-        }
-
-        long timeDenominator = 0;
-        if (timeFractionCalculation == TimeFractionCalculation.FUNCTION_TOTAL) {
-            timeDenominator = fProfile.getTotalTime();
-        } else if (timeFractionCalculation == TimeFractionCalculation.FUNCTION_MAX_LINE_TIME) {
-            timeDenominator = fProfile.getMaxLineTime();
-        }
-
-        setFunctionProfileVisualizations(data, fProfile, timeDenominator);
-
-        // Set the currently used TimeFractionCalculation
-        data.fileTFC = timeFractionCalculation;
-    }
-
-    private void setFunctionProfileVisualizations(FileProfileData data,
-                                                  FunctionProfile fProfile, long timeDenominator) {
-
+    private void loadFileProfile(FileProfileData data, Map<Integer, Map<Long, ProfileSchema.LockStats>> line_stats,
+                                 TimeFractionCalculation timeFractionCalculation) {
 
 
         InlayModel inlayModel = data.editor.getInlayModel();
-        int offset;
+//        long timeDenominator = 0;
+//        if (timeFractionCalculation == TimeFractionCalculation.FUNCTION_TOTAL) {
+//            timeDenominator = fProfile.getTotalTime();
+//        } else if (timeFractionCalculation == TimeFractionCalculation.FUNCTION_MAX_LINE_TIME) {
+//            timeDenominator = fProfile.getMaxLineTime();
+//        }
 
-        // On single line functions the function inlay would overlap with the line inlay, so don't render it
-        if (fProfile.getNumLines() > 1) {
-            // Create new inlay for function profile (contains profile metadata)
-            FunctionProfileInlayRenderer fRenderer = new FunctionProfileInlayRenderer(
-                    fProfile,
-                    data.desiredTableAlignment,
-                    getMargin(getFontMetrics(data.editor)),
-                    data.fileTime
-            );
-            offset = data.editor.logicalPositionToOffset(new LogicalPosition(fProfile.getLineNrFromZero(), 0));
-            Inlay<FunctionProfileInlayRenderer> fInlay = inlayModel.addAfterLineEndElement(
-                    offset, true, fRenderer);
-            addInlay(fInlay, data);
-        }
+        // Set the currently used TimeFractionCalculation
+        data.fileTFC = timeFractionCalculation;
 
+        line_stats.forEach((lineNo, lock_stats) -> {
+            int offset;
 
-        // Highlighter for gutter color
-        AddFunctionGutter(
-                data.editor,
-                fProfile,
-                data);
-////            addHighlighter(rh, file);
-
-        // Create new visualizations for line profile
-        for (LineProfile line : fProfile.getProfiledLines()) {
+            // Highlighter for gutter color
+//            AddFunctionGutter(data, percentage);
 
             // Inlay for in text table and colormap
             LineProfileInlayRenderer renderer = new LineProfileInlayRenderer(
-                    line,
-                    timeDenominator,
+                    currentProfile.schema,
+                    lineNo,
+                    lock_stats,
+//                    timeDenominator,
                     data.desiredTableAlignment,
-                    getMargin(getFontMetrics(data.editor)));
-            offset = data.editor.logicalPositionToOffset(new LogicalPosition(line.getLineNrFromZero(), 0));
+                    getMargin(getFontMetrics(data.editor))
+            );
+
+            offset = data.editor.logicalPositionToOffset(new LogicalPosition(lineNo - 1, 0));
             Inlay<LineProfileInlayRenderer> inlay = inlayModel.addAfterLineEndElement(offset, true, renderer);
             addInlay(inlay, data);
-        }
+        });
     }
 
-    private void AddFunctionGutter(Editor editor, FunctionProfile func, FileProfileData data) {
-        ColorMapService colorMapService = ApplicationManager.getApplication().getService(ColorMapService.class);
-
-        double timeFraction = (double) func.getTotalTime() / data.fileTime;
-        TextAttributesKey timeColorAttributes = colorMapService.getTimeFractionTextAttributesKey(timeFraction);
-        Color timeColor = editor.getColorsScheme().getAttributes(timeColorAttributes).getBackgroundColor();
-
-        ProfileLineMarkerRenderer renderer = new ProfileLineMarkerRenderer(editor, timeColorAttributes,
-                GUTTER_COLOR_THICKNESS, 0, LineMarkerRendererEx.Position.LEFT);
-
-        for (int l = func.getLineNrFromZero(); l < func.getLineNrFromZero() + func.getNumLines(); l++) {
-            RangeHighlighter hl = editor.getMarkupModel()
-                    .addLineHighlighter(
-                            null,
-                            l,
-                            HighlighterLayer.SELECTION
-                    );
-
-            // Set colors in gutter
-            hl.setLineMarkerRenderer(renderer);
-            // Set colors in scrollbar
-            hl.setErrorStripeMarkColor(timeColor);
-            hl.setErrorStripeTooltip(null);
-            hl.setThinErrorStripeMark(true);
-            addHighlighter(hl, data);
-        }
-    }
+//    private void AddFunctionGutter(Editor editor, FunctionProfile func, FileProfileData data) {
+//        ColorMapService colorMapService = ApplicationManager.getApplication().getService(ColorMapService.class);
+//
+//        double timeFraction = (double) func.getTotalTime() / data.fileTime;
+//        TextAttributesKey timeColorAttributes = colorMapService.getTimeFractionTextAttributesKey(timeFraction);
+//        Color timeColor = editor.getColorsScheme().getAttributes(timeColorAttributes).getBackgroundColor();
+//
+//        ProfileLineMarkerRenderer renderer = new ProfileLineMarkerRenderer(editor, timeColorAttributes,
+//                GUTTER_COLOR_THICKNESS, 0, LineMarkerRendererEx.Position.LEFT);
+//
+////        for (int l = func.getLineNrFromZero(); l < func.getLineNrFromZero() + func.getNumLines(); l++) {
+//            RangeHighlighter hl = editor.getMarkupModel()
+//                    .addLineHighlighter(
+//                            null,
+//                            l,
+//                            HighlighterLayer.SELECTION
+//                    );
+//
+//            // Set colors in gutter
+//            hl.setLineMarkerRenderer(renderer);
+//            // Set colors in scrollbar
+//            hl.setErrorStripeMarkColor(timeColor);
+//            hl.setErrorStripeTooltip(null);
+//            hl.setThinErrorStripeMark(true);
+//            addHighlighter(hl, data);
+////        }
+//    }
 }
 

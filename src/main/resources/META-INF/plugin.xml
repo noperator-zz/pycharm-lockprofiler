@@ -62,6 +62,11 @@
         <backspaceHandlerDelegate implementation="nl.jusx.pycharm.lockprofiler.handlers.MyBackspaceHandler" />
         <typedHandler implementation="nl.jusx.pycharm.lockprofiler.handlers.TypedHandler" />
         <notificationGroup id="Line Profiler Notifications" displayType="BALLOON" />
+
+        <toolWindow id="Lock Profiler" secondary="false" icon="AllIcons.General.Modified" anchor="bottom"
+                    doNotActivateOnStart="true"
+                    factoryClass="nl.jusx.pycharm.lockprofiler.render.LockProfilerToolWindowFactory"/>
+
         <!-- Extensions for settings -->
         <applicationService serviceImplementation="nl.jusx.pycharm.lockprofiler.settings.SettingsState"/>
         <projectConfigurable parentId="tools" instance="nl.jusx.pycharm.lockprofiler.settings.SettingsConfigurable"
