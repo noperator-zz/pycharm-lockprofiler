@@ -9,7 +9,6 @@ import com.intellij.openapi.wm.ToolWindow;
 //import com.intellij.ui.treeStructure.treetable.TreeTableModel;
 import nl.jusx.pycharm.lockprofiler.profile.Profile;
 import nl.jusx.pycharm.lockprofiler.profile.ProfileSchema;
-import org.apache.commons.collections.map.Flat3Map;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -18,9 +17,6 @@ import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class LockProfilerToolWindow implements Disposable {
     private Profile profile;
@@ -48,8 +44,8 @@ public class LockProfilerToolWindow implements Disposable {
                 maxTimes = new long[data[0].length];
                 // TODO there's probably a better way to compute this
                 Arrays.stream(data).forEach(e -> {
-                    // NOTE: `- 2` to include `hits` and `acquires`
-                    for (int i = firstTimeColumn - 2; i < e.length; i++) {
+                    // NOTE: `- 3` to include `hits`, `acquires`, and `blocks`
+                    for (int i = firstTimeColumn - 3; i < e.length; i++) {
                         maxTimes[i] = Math.max(maxTimes[i], (long) e[i]);
                     }
                 });
@@ -67,7 +63,10 @@ public class LockProfilerToolWindow implements Disposable {
 
         @Override
         public Class<?> getColumnClass(int columnIndex) {
-            return columnClass[columnIndex];
+            if (columnClass.length > 0) {
+                return columnClass[columnIndex];
+            }
+            return Long.class;
 //            if (columnIndex >= firstTimeColumn) {
 //                return Long.class;
 //            }
@@ -92,8 +91,8 @@ public class LockProfilerToolWindow implements Disposable {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                                                        boolean hasFocus, int row, int column) {
 
-            // NOTE: `- 2` to include `hits` and `acquires`
-            if (table.convertColumnIndexToModel(column) >= firstTimeColumn - 2) {
+            // NOTE: `- 3` to include `hits`, `acquires`, and `blocks`
+            if (table.convertColumnIndexToModel(column) >= firstTimeColumn - 3) {
                 long val = (long) value;
 
                 // TODO make compatible with IDE color themes
@@ -122,7 +121,7 @@ public class LockProfilerToolWindow implements Disposable {
     public LockProfilerToolWindow(ToolWindow toolWindow, Project project) {
         this.project = project;
 
-        lockTable.setDefaultRenderer(Long.class, new TimeRenderer(3));
+        lockTable.setDefaultRenderer(Long.class, new TimeRenderer(4));
         lineTable.setDefaultRenderer(Long.class, new TimeRenderer(5));
 
         lockTable.setAutoCreateRowSorter(true);
@@ -130,7 +129,7 @@ public class LockProfilerToolWindow implements Disposable {
     }
 
     public void update(Profile profile) {
-        String[] lockColumns = {"Name", "Hits", "Acquires", "Total Wait", "Avg Wait", "Max Wait", "Total Hold", "Avg Hold", "Max Hold"};
+        String[] lockColumns = {"Name", "Hits", "Acquires", "Blocks", "Total Wait", "Avg Wait", "Max Wait", "Total Hold", "Avg Hold", "Max Hold", "Total Block", "Avg Block", "Max Block"};
         Object[][] lockData = profile.schema.lock_stats
                 .entrySet()
                 .stream()
@@ -140,17 +139,21 @@ public class LockProfilerToolWindow implements Disposable {
                             profile.schema.getLockName(e.getKey()),
                             val.hits,
                             val.acquires,
-                            val.total_acquire_time,
-                            val.avg_acquire_time,
-                            val.max_acquire_time,
+                            val.blocks,
+                            val.total_wait_time,
+                            val.avg_wait_time,
+                            val.max_wait_time,
                             val.total_hold_time,
                             val.avg_hold_time,
                             val.max_hold_time,
+                            val.total_block_time,
+                            val.avg_block_time,
+                            val.max_block_time,
                     };
                 }).toArray(Object[][]::new);
-        lockTable.setModel(new LockTableModel(lockData, lockColumns, 3));
+        lockTable.setModel(new LockTableModel(lockData, lockColumns, 4));
 
-        String[] lineColumns = {"File", "Line", "Name", "Hits", "Acquires", "Total Wait", "Avg Wait", "Max Wait", "Total Hold", "Avg Hold", "Max Hold"};
+        String[] lineColumns = {"File", "Line", "Name", "Hits", "Acquires", "Blocks", "Total Wait", "Avg Wait", "Max Wait", "Total Hold", "Avg Hold", "Max Hold", "Total Block", "Avg Block", "Max Block"};
         List<Object[]> lineData = new ArrayList<>();
 
         profile.schema.file_stats.forEach((file, line_stats)
@@ -162,14 +165,18 @@ public class LockProfilerToolWindow implements Disposable {
                 profile.schema.getLockName(lock_hash),
                 val.hits,
                 val.acquires,
-                val.total_acquire_time,
-                val.avg_acquire_time,
-                val.max_acquire_time,
+                val.blocks,
+                val.total_wait_time,
+                val.avg_wait_time,
+                val.max_wait_time,
                 val.total_hold_time,
                 val.avg_hold_time,
                 val.max_hold_time,
+                val.total_block_time,
+                val.avg_block_time,
+                val.max_block_time,
         }))));
-        lineTable.setModel(new LockTableModel(lineData.toArray(Object[][]::new), lineColumns, 5));
+        lineTable.setModel(new LockTableModel(lineData.toArray(Object[][]::new), lineColumns, 6));
     }
 
     public JPanel getContent() {

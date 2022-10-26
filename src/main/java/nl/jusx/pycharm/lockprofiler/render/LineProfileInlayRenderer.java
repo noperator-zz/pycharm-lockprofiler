@@ -9,11 +9,9 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import nl.jusx.pycharm.lockprofiler.profile.ProfileSchema;
 import nl.jusx.pycharm.lockprofiler.service.ColorMapService;
-import nl.jusx.pycharm.lockprofiler.service.ProfileHighlightService;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Comparator;
 import java.util.Map;
@@ -61,13 +59,13 @@ public class LineProfileInlayRenderer implements EditorCustomElementRenderer {
         List<String> texts = lock_stats
                 .entrySet()
                 .stream()
-                .sorted(Comparator.comparingLong(e->e.getValue().total_acquire_time))
+                .sorted(Comparator.comparingLong(e->e.getValue().total_wait_time))
                 .map(e -> {
                     return String.format("%s %d %d %s %s",
                         schema.getLockName(e.getKey()),
                         e.getValue().hits,
                         e.getValue().acquires,
-                        ProfileSchema.formatTime(e.getValue().total_acquire_time),
+                        ProfileSchema.formatTime(e.getValue().total_wait_time),
                         ProfileSchema.formatTime(e.getValue().total_hold_time)
                     );})
                 .collect(Collectors.toList());
